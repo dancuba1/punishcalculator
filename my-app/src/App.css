@@ -1,0 +1,217 @@
+.App {
+  text-align: left;
+  background-color: #1E1E1E;
+  overflow:auto;
+  height: 100dvi;
+}
+
+.App::before, .App::after {
+  content: "";
+  position: fixed;
+  background-color: #BDBBBB; /* Color of the lines */
+}
+
+.App::before {
+  width: 100%; /* Full width for the horizontal line */
+  height: 3%; /* Thickness of the horizontal line */
+  top: 50%; /* Center vertically */
+  left: 0;
+}
+
+.App::after {
+  height: 100%; /* Full height for the vertical line */
+  width: 3%; /* Thickness of the vertical line */
+  top: 0;
+  left: 30%; /* Center horizontally */
+}
+
+.App-header, .Input-character, .Character-list {
+  position: relative; /* Ensure content appears above the lines */
+  z-index: 1; /* Higher z-index than pseudo-elements */
+}
+
+
+
+.App-header {
+  padding-top: 2%;
+  min-height: 25%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  align-self: flex-start;
+  justify-content: center;
+  position: relative;
+  padding-left: 5%;
+  font-size: calc(5px + 2vmin);
+  color: white;
+  font-family: 'Koulan', sans-serif;
+  letter-spacing: 10px;
+}
+
+.Input-character{
+  padding-left: 10%;
+  color: #ffffff;
+}
+@font-face {
+  font-family: 'Koulan';
+  src: url(./fonts/koulan.ttf) format('truetype');
+}
+
+h1 {
+  line-height: 0.2; /* Adjust line spacing for h1 */
+}
+
+h2 {
+  line-height: 0.5; /* Adjust line spacing for h2 */
+}
+
+.dropdown {
+  width: 100%;
+  margin: 100px auto;
+  position: relative;
+  user-select:none;
+}
+
+
+
+.dropdown .dropdown-button {
+  /*border-radius: 10px 10px 0px 0px;*/
+  padding: 15px 20px;
+  background: #fff;
+  box-shadow: 3px 3px 10px 6px rgba(0, 0, 0, 0.06);
+  display: flex;
+  font-weight: bold;
+  align-items: center;
+  cursor: pointer;
+  font-family: 'Koulan', sans-serif;
+  justify-content: space-between;
+}
+
+.dropdown .dropdown-content {
+  top: 110%;
+  width: 100%;
+  left: 0;
+  color: #333;
+  position: absolute;
+  max-height: 200px; /* Adjust based on your preference */
+  overflow-y: auto; /* Enables vertical scrolling */
+  font-weight: 500;
+  font-family: 'Koulan', sans-serif;
+}
+
+.dropdown .dropdown-content .dropdown-item{
+  background: #fcfcfc;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Koulan', sans-serif;
+  z-index: 2;
+
+}
+
+.dropdown .dropdown-content .dropdown-item:hover{
+  background: #f4f4f4;
+}
+
+
+.dropdownContainer{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: relative;
+  bottom: 70px;
+  height: 100vh; /* Full height of the viewport */
+  flex-wrap:nowrap;
+  padding: 10px;
+}
+
+
+
+@media (max-width: 768px) {
+  .dropdownContainer {
+    flex-direction: column;
+    align-items:start;
+    justify-content: start;
+    flex-wrap: nowrap;
+  }
+}
+
+.selectCharacter{
+  flex: 1;
+  margin: 10px;
+  text-align: center;
+  padding: 20px;
+}
+
+.selectPunishingCharacter{
+  flex: 1;
+  margin: 10px;
+  text-align: center;
+  padding: 20px;
+}
+
+.selectMove{
+  flex: 1;
+  margin: 10px;
+  text-align: center;
+  padding: 20px;
+}
+
+
+.button{
+    display: flex;
+    position: relative;
+    justify-content: center; /* Horizontal centering */
+    align-items: center; /* Vertical centering */
+}
+.calcButton{
+  background-color: #04AA6D; /* Green */
+  border: none;
+  padding: 15px 32px;
+  text-align: center;
+  color: #fff;
+  text-decoration:solid;
+  display: inline-block;
+  z-index: 1;
+  font-size: 24px;
+  font-family: 'Koulan', sans-serif;
+  cursor: pointer;
+
+}
+
+.content-container {
+  position: absolute;
+  bottom: 10px; /* Adjust this value to place it above the bottom */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%; /* Adjust the width as needed */
+  display: flex;
+  z-index: 2;
+  flex-wrap: nowrap;
+  height: 100vh;
+  flex-direction: column;
+  align-items: center; /* Center the content horizontally */
+}
+
+.body .html{
+  background-color: #f1f1f1;
+}
+
+.calcOutput{
+  width: 100%;
+}
+
+.calcRectangle{
+  width: 100vh;
+}
+.r{
+  display: flex;
+  justify-content:  center;
+  align-items: center;
+}
+
+.r .rec{
+  width: 100vh;
+  height: 65vh;
+  background: #fcfcfc;
+}

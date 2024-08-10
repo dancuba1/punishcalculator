@@ -1,0 +1,29 @@
+Shield Notes
+1 Frame Start Up
+11 Frames Shield drop lag
+	Can Buffer Options within this lag
+Frame 4 earliest to drop shield
+3 Frame Jump Squat (7 for Kazuya)
+Grabs vary from Frame 6-15 (if not in shield stun which adds 4 frames)
+After 11 hits (Rapid Jab), Frame 1 (usually 4/5) invincible roll available 
+
+What is safe on shield?
+Variability derived from
+	Spacing
+	Staleness
+	Hitboxes
+	Speed of move
+	Amount of shield stun
+	Opponents options
+
+Parrying
+Frame 1 indicator
+First 5 frames (of 11 shield drop frames) will create a parry if hit
+	vulnerable for next 6 frames
+Freezes victim for 8 frames
+Freezes opponent for 11 frames + their end lag (nothing for projectile)
+Footstool gives 21 frames
+
+Steve only has 7 frame shield drop if they create their crafting table
+
+60 FPS

@@ -1,0 +1,25 @@
+<div className = "Input-character">
+        {filteredCharacter.map((character) => (
+          <div key={character.id}>
+            {character.moves.map((move) =>(
+              <li key={move.id}>
+                <strong>{move.id}</strong>: {move.startup}: {move.advantage}
+            </li>
+             ))}
+          </div>
+        ))}
+      </div>
+      <div className= "Character-list">
+        {characterList.map((character) => (
+          <div key={character.name}>
+          <h1> {character.name} </h1>
+          <ul>
+          {character.moves.map((move) => (
+            <li key={move.id}>
+                <strong>{move.id}</strong>: {move.startup}: {move.advantage}
+            </li>
+          ))}
+          </ul>
+          </div>
+        ))} 
+      </div>
