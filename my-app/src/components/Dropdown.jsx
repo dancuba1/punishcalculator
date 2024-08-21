@@ -2,7 +2,10 @@ import React, { useState } from "react";
 
 function Dropdown({ selected, setSelected, options = [] }) {
   const [isActive, setIsActive] = useState(false);
-
+  for(const option of options){ 
+    console.log("Options " + option);
+  };
+  
   return (
     <div className="dropdown">
       <div
@@ -26,14 +29,18 @@ function Dropdown({ selected, setSelected, options = [] }) {
                 setIsActive(false);
               }}
               className="dropdown-item"
+              
             >
-              {option}
+              {typeof option === 'object' ? option.name : option} {/* Adjust based on the structure */}
+
             </div>
           ))}
         </div>
       )}
     </div>
   );
+
 }
+  
 
 export default Dropdown;

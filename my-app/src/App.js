@@ -1,9 +1,33 @@
 import './App.css';
-import { useState, useEffect } from "react";
-import { getAllCharactersData, getCharacterData, processStartUpValue, getImage, setStartUpCalc } from "./Algorithm.js";
-import Dropdown from "./Dropdown.jsx";
+import { useState, useEffect, useReducer } from "react";
+import {processStartUpValue, getImage, setStartUpCalc } from "./Algorithm.js";
+import { getAllCharactersData, getAllCharacterNames, getCharacterData, getCharacterNames } from "./repo/FirebaseRepository.js";
+import { fetchGifs } from "./repo/CharacterGifs.jsx";
+import Dropdown from "./components/Dropdown.jsx";
+import Slideshow from "./components/Slideshow.jsx";
+
+import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+
+
+function reducer(state, action){
+  switch(action.type){
+    case "setAChar":
+      return [];
+    default:
+      return;
+  }
+}
 
 function App() {
+
+  const[aChar, dispatch] = useReducer(reducer, []);
+  
+
+  function setAChar(char){
+    dispatch({type: "setAChar"})
+  }
+
+  const storage = getStorage();
   //characters and all their moves
   const [characterList, setCharacterList] = useState([]);
 
@@ -37,10 +61,11 @@ function App() {
   useEffect(() => {
     const displayCharacterInfo = async () => {
       try {
-        const characters = await getAllCharactersData();
-        setCharacterList(characters);
-        setCharacterSelect(characters.map(character => character.name));
-        console.log(characters);
+        //const characters = await getAllCharactersData();
+        //setCharacterList(characters);
+        
+        setCharacterSelect(await getAllCharacterNames());
+        console.log(characterSelect);
       } catch (err) {
         console.log(err);
       }
@@ -49,22 +74,44 @@ function App() {
   }, []);
 
 
-  //set character data to the character selected and set the select move dropdown
   useEffect(() => {
-    const getCharMoves = (charName) => {
-      const character = characterList.find((char) => char.name === charName);
-      return character ? character.moves : [];
-    };
-
-    if (selectedChar !== "Select Character") {
-      if(resetMove){
-        setSelectedMoveId("Select Move");
-        setResetMove(false);
+    if(selectedChar === "Select Character"){
+      console.log("Not Character Select");
+      const handleCharacterMoves = async () => {
+        const characterWithMoves = await getCharacterData(selectedChar);
+        console.log(characterWithMoves);
+      
+        setMoveIds(...moveIds, characterWithMoves[0].moves.map((move) => (move.id)));
       }
-      const moves = getCharMoves(selectedChar);
-      setCharMoves(moves);
-      setMoveIds(charMoves.map(move => move.id));
+      handleCharacterMoves();
+    }else{
+      console.log("Character select = " + selectedChar);
     }
+  }, [selectedChar])
+
+  //set character data to the character selected and set the select move dropdown
+
+  const setACharData = () => {
+
+  }
+  useEffect(() => {
+    if(characterList.length > 0){
+      const getCharMoves = (charName) => {
+        const character = characterList.find((char) => char.name === charName);
+        return character ? character.moves : [];
+      };
+  
+      if (selectedChar !== "Select Character") {
+        if(resetMove){
+          setSelectedMoveId("Select Move");
+          setResetMove(false);
+        }
+        const moves = getCharMoves(selectedChar);
+        setCharMoves(moves);
+        setMoveIds(charMoves.map(move => move.id));
+      }
+    }
+    
   }, [selectedChar, charMoves]);
 
   //set pcharacter data to the character selected
@@ -109,7 +156,6 @@ function App() {
        //map for moves' id to total start up when calculated.
         const startUpMap = {};
 
-        
         var jumpSquat;
         if(selectedPChar === "Kazuya"){
           jumpSquat = 7;
@@ -119,11 +165,31 @@ function App() {
          //for each move the punishing character 
         for(const move of pCharMoves){
           //calc all start ups
-          const startUp = processStartUpValue(move.startup);
+          console.log(move);
+          const startUp = await processStartUpValue(move.startup);
           if(startUp !== null) {
+            console.log("start up not null" + startUp);
             startUpMap[move.id] = setStartUpCalc(move, startUp, jumpSquat);
+           
+          }else{
+            console.log("start up null" + startUp);
           }
         }
+        async function handleFetchGifs() {
+          try {
+            // Wait for fetchGifs to complete and return URLs
+            const urls = await fetchGifs(selectedPChar, pCharMoves);
+            
+            // Set the fetched URLs into the state
+            setSSImages(urls);
+          } catch (error) {
+            console.error("Error fetching GIFs:", error);
+            // Handle errors if needed
+          }
+        }
+        
+        // Calling the function
+        handleFetchGifs();
 
       } catch (err) {
         console.log(err);
@@ -132,6 +198,56 @@ function App() {
       console.log("One Empty array at least");
     }
   };
+
+  useEffect(() => {
+    getCharacterData(selectedChar);
+  }, [selectedChar])
+
+  const [imgSrc, setImgSrc] = useState(null);
+  const [fallback, setFallback] = useState(false);
+
+  const reloadSrc = e => { 
+    if(fallback){
+      e.target.src = '/img/blank_profile.png';
+    }else{
+      e.target.src = imgSrc
+      setFallback(true)
+    }
+  }
+
+  const [ssImages, setSSImages] = useState([]);
+  const [singleImage, setSingleImage] = useState([]);
+  useEffect(() =>  {
+    const storage = getStorage();
+    const refs = [
+      ref(storage, 'falco/Falco Up Smash.gif'),
+      ref(storage, 'falco/Falco Up Tilt.gif'),
+      ref(storage, 'falco/Falco Forward Air.gif')
+    ];
+    const single = ref(storage, 'falco/Falco Up Smash.gif');
+  
+    // Fetch single image
+    getDownloadURL(single).then((url) => {
+      setSingleImage(url);
+    }).catch(handleError);
+  
+    // Fetch multiple images
+    const fetchImages = async () => {
+      const urls = await Promise.all(
+        refs.map((fRef) => getDownloadURL(fRef).catch(handleError))
+      );
+      setSSImages(urls);
+    };
+  
+    fetchImages();
+  }, []); // Dependency array to prevent re-runs
+  
+  const handleError = (error) => {
+    // Handle the error
+    console.error(error);
+  };
+  
+  
 
   return (
     <div className="App">
@@ -171,10 +287,17 @@ function App() {
             <section className='calcRectangle'>
                 <div className="r">
                   <div className='rec'>
-                  <img className='inputAttack' alt='aChar' src={getImage("a")}/>
+                    <div className='charGifs'>
+                      <div className='sshow" aCharSlideShow'>
+                        <Slideshow images ={singleImage}/>
+                      </div>
+                      <div className='sshow pCharSlideShow'>
+                        <Slideshow images ={ssImages}/>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              
+                
             </section>
           </div>
         <div className='button'>

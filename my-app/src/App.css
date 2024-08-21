@@ -59,11 +59,11 @@
 }
 
 h1 {
-  line-height: 0.2; /* Adjust line spacing for h1 */
+  line-height: 0.7; /* Adjust line spacing for h1 */
 }
 
 h2 {
-  line-height: 0.5; /* Adjust line spacing for h2 */
+  line-height: 0.7; /* Adjust line spacing for h2 */
 }
 
 .dropdown {
@@ -122,6 +122,7 @@ h2 {
   bottom: 70px;
   height: 100vh; /* Full height of the viewport */
   flex-wrap:nowrap;
+  width: 100%;
   padding: 10px;
 }
 
@@ -130,9 +131,23 @@ h2 {
 @media (max-width: 768px) {
   .dropdownContainer {
     flex-direction: column;
-    align-items:start;
-    justify-content: start;
-    flex-wrap: nowrap;
+    display: flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap: 10px;
+    width: 100%;
+    padding: 0 10px;
+    height: auto;
+  }
+  .dropdownContainer > div {
+    width: 100%; /* Make each dropdown take up full width */
+    margin: 0; /* Remove any default margin */
+  }
+  .dropdownContainer .selectCharacter,
+  .dropdownContainer .selectMove,
+  .dropdownContainer .selectPunishingCharacter {
+    width: 100%; /* Ensure each dropdown is the same width */
+    margin-bottom: 10px; /* Space between dropdowns */
   }
 }
 
@@ -188,30 +203,156 @@ h2 {
   display: flex;
   z-index: 2;
   flex-wrap: nowrap;
-  height: 100vh;
+  height: 100%;
   flex-direction: column;
   align-items: center; /* Center the content horizontally */
 }
 
 .body .html{
-  background-color: #f1f1f1;
+  background-color: #1E1E1E;
 }
 
 .calcOutput{
-  width: 100%;
+  flex-wrap: wrap;
+  position: relative;
+  flex-direction: row;
+  display: flex;
+  width: 85%;
 }
 
 .calcRectangle{
-  width: 100vh;
+  border-radius: 15px;
+  width: 100%;
 }
 .r{
   display: flex;
+  border-radius: 15px;
+
+  width: 100%;
   justify-content:  center;
   align-items: center;
 }
 
 .r .rec{
-  width: 100vh;
+  width: 100%;
+  border-radius: 25px;
+
   height: 65vh;
   background: #fcfcfc;
+}
+
+.charGifs{
+  display: flex;
+  position: relative;
+  justify-content:space-around;
+  flex-direction: row;
+}
+
+.slideshow-container{
+  align-items: center;
+  display: flex;
+  height: 50dvh;
+  margin: 0 auto;
+  max-width: 100vh;
+  position: relative;
+}
+
+.slide{
+  height: 50%;
+  opacity: 0;
+  position: absolute;
+  transition: all 0.3s ease-in-out;
+  width: auto;
+  z-index: 0;
+  border-radius: 15px;
+  background-size: contain;
+}
+
+.slide-center{
+  box-shadow: -2px 5px 33x 6px rgba(0, 0, 0, 0.35);
+  height: 70%;
+  max-width: 50%;
+  width: auto;
+  opacity: 1;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 430px;
+  z-index: 2;
+}
+
+.slide-before{
+  left: 30%;
+  opacity: 50%;
+  transform: translateX(-50%);
+}
+
+.slide-after{
+  left:70%;
+  opacity: 50%;
+  transform: translateX(-50%)
+}
+
+.slideShow {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.calcOutput{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: relative;
+}
+
+.charGifs{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  bottom: 70px;
+  height: 100vh; /* Full height of the viewport */
+  flex-wrap:wrap;
+  width: 100%;
+  padding: 10px;
+}
+
+.sshow{
+  position: relative;
+}
+
+
+
+.aCharSlideShow, .pCharSlideShow {
+  flex: 1; /* Ensure they take equal space */
+  margin: 10px; /* Add spacing between them */
+}
+
+
+.arrow {
+  position:absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  display: flex; 
+  z-index: 2;
+  align-items: center;
+  justify-content: center;
+}
+
+.left-arrow {
+  left: 10px;
+}
+
+.right-arrow {
+  right: 10px;
+}
+
+
+.arrow svg {
+  width: 24px;
+  height: 24px;
 }

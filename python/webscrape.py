@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import os
 
 characterNames = [
     "banjo_and_kazooie", "bayonetta", "bowser", "bowser_jr", "byleth", 
@@ -8,7 +9,8 @@ characterNames = [
     "falco", "fox", "ganondorf", "greninja", "hero", "ice_climbers", "ike", 
     "incineroar", "inkling", "isabelle", "jigglypuff", "joker", "kazuya", 
     "ken", "king_dedede", "king_k_rool", "kirby", "link", "little_mac", 
-    "lucario", "lucas", "lucina", "luigi", "mario", "marth", "mega_man", 
+    "lucario", "lucas", "lucina", "luigi", "mario", 
+    "marth", "mega_man", 
     "meta_knight", "mewtwo", "mii_brawler", "mii_swordfighter", "min_min", 
     "mr_game_and_watch", "mythra", "ness", "olimar", "pac_man", "palutena", 
     "peach", "pichu", "pikachu", "pirahna_plant", "pit", "squirtle", "ivysaur", 
@@ -78,21 +80,63 @@ def scanWebPage(pageToScrape):
 
 all_characters_data = {}
 
-for character in characterNames:
-    url = f"https://ultimateframedata.com/{character}.php"
-    page = requests.get(url)
-    print(f"Scraping data for {character}...")
-    character_data = scanWebPage(page)
-    if page.status_code == 200:
-        all_characters_data[character] = scanWebPage(page)
-    else:
-        print(f"Failed to retrieve data for {character}")
 
-import json
+base_directory = r"C:\Users\danie\Desktop\Punish Calculator"
 
-with open('all_grabs.json','w') as f:
-    json.dump(all_characters_data, f, indent = 2)
-# Example to print data for a specific character and move
-import pprint
-pp = pprint.PrettyPrinter(indent=2)
 
+def download_gifs(pageToScrape, character):
+    soup = BeautifulSoup(pageToScrape.text, "html.parser")
+    gifLinks = soup.findAll("a", class_="hitboximg")
+
+    for gifLink in gifLinks:
+        gif_url = "https://ultimateframedata.com/" + gifLink['data-featherlight']
+
+        # Create directory for the character if it doesn't exist
+        character_directory = os.path.join(base_directory, character)
+        os.makedirs(character_directory, exist_ok=True)
+
+        # Generate the GIF filename
+        gif_filename = os.path.join(character_directory, os.path.basename(gif_url))
+
+        # Download the GIF
+        response = requests.get(gif_url)
+        if response.status_code == 200:
+            with open(gif_filename, 'wb') as gif_file:
+                gif_file.write(response.content)
+            print(f"Downloaded {os.path.basename(gif_url)} for {character}")
+        else:
+            print(f"Failed to download {os.path.basename(gif_url)} for {character}")
+
+
+def gifScrape():
+    for character in characterNames:
+        url = f"https://ultimateframedata.com/{character}.php"
+        page = requests.get(url)
+        print(f"Scraping GIFs for {character}...")
+        if page.status_code == 200:
+            download_gifs(page, character)
+        else:
+            print(f"Failed to retrieve data for {character}")
+
+
+
+def webscrape():
+    for character in characterNames:
+        url = f"https://ultimateframedata.com/{character}.php"
+        page = requests.get(url)
+        print(f"Scraping data for {character}...")
+        character_data = scanWebPage(page)
+        if page.status_code == 200:
+            all_characters_data[character] = scanWebPage(page)
+        else:
+            print(f"Failed to retrieve data for {character}")
+
+    import json
+
+    with open('all_grabs.json','w') as f:
+        json.dump(all_characters_data, f, indent = 2)
+    # Example to print data for a specific character and move
+    import pprint
+    pp = pprint.PrettyPrinter(indent=2)
+
+gifScrape()
