@@ -1,9 +1,11 @@
 import { ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../Config/firebase-config";
+import { removeAllParentheses, lowercaseFirstLetter, removeSpecialSubstrings, capitaliseFirstLetter, transformId } from "../utils/stringManip.js";
+
 
 const getGifRef = (char, move) => {
     console.log("MOVE " +removeAllParentheses(removeSpecialSubstrings(move)));
-    return[lowercaseFirstLetter(char) + '/' + capitaliseFirstLetter(char) + ' ' + removeAllParentheses(removeSpecialSubstrings(move))  + '.gif'];
+    return(lowercaseFirstLetter(char) + '/' + transformId(char) + ' ' + removeAllParentheses(removeSpecialSubstrings(move))  + '.gif');
 }
 
 export const fetchGifs = async (char, moves) => {
@@ -24,7 +26,7 @@ export const fetchGifs = async (char, moves) => {
             attemptedUrls =  await Promise.allSettled(
                 Object.values(moveRefMap).map(async (gifPath) => {
                     console.log("GIFREF " + gifPath)
-                    const gifUrl = ref(storage, gifPath[0]);
+                    const gifUrl = ref(storage, gifPath);
                     console.log("Gif URL  " + gifUrl);
                     return await getDownloadURL(gifUrl);
                 })
@@ -40,8 +42,10 @@ export const fetchGifs = async (char, moves) => {
 
     }else if(typeof moves === "string"){
         console.log("Found string");
-        moveRefMap[moves.id] = getGifRef(char, moves);
-        const gifRef = ref(storage, moveRefMap[moves.id]);
+        const moveRef = getGifRef(char, moves);
+        console.log(moveRef);
+        const gifRef = ref(storage, moveRef);
+        console.log(gifRef);
         urls =  await getDownloadURL(gifRef);
     }else{
         console.log(typeof(moves));
@@ -50,40 +54,3 @@ export const fetchGifs = async (char, moves) => {
     return urls;
 }
 
-
-
-
-function capitaliseFirstLetter(string) {
-    if (string.length === 0) return string; // Handle empty string case
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
-function lowercaseFirstLetter(str) {
-    if (!str) return str; // Check if the string is empty or undefined
-    return str.charAt(0).toLowerCase() + str.slice(1);
-}
-
-function removeAllParentheses(str) {
-    // Use a regular expression to remove parentheses but keep their contents
-    return str.replace(/\(([^()]+)\)/g, '$1');
-  }
-
-function removeSpecialSubstrings(str) {
-    // Define an array of substrings to remove
-    const substringsToRemove = ["Neutral B ", "Side B ", "Up B ", "Down B "];
-  
-    // Use a loop to remove each substring
-    substringsToRemove.forEach(substring => {
-      // Replace all occurrences of the substring with an empty string
-      str = str.replaceAll(substring, '');
-    });
-
-    if (str.toLowerCase().includes("end")) {
-        str = str.replaceAll(/end/gi, 'Finisher'); // 'gi' makes it case-insensitive
-      }
-      if (str.toLowerCase().includes("fire bird")) {
-        str = str.replaceAll(/fire bird/gi, 'Firebird'); // 'gi' makes it case-insensitive
-      }
-  
-    return str;
-}

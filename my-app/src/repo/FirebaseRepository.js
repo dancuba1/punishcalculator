@@ -1,5 +1,6 @@
-import { getDocs, collection } from "firebase/firestore";
+import { getDocs, collection, doc, getDoc } from "firebase/firestore";
 import { db } from "../Config/firebase-config";
+import { transformId } from "../utils/stringManip.js";
 
 export const getCharacterData = async (character) => {
     const characterWithMoves = [];
@@ -7,24 +8,52 @@ export const getCharacterData = async (character) => {
         const movesCollectionRef = collection(db, `characters/${character}/moves`);
 
         const movesSnapshot = await getDocs(movesCollectionRef);
+        console.log("Number of moves found:", movesSnapshot.size);
+
         
         const movesData = movesSnapshot.docs.map((moveDoc) => ({
                 ...moveDoc.data(),
                 id: moveDoc.id,
         }));
-  
-            
+
+        console.log(movesData);
         characterWithMoves.push({
             moves: movesData,
-            id: 
-            character,
+            id: character,
         });
-        console.log(characterWithMoves)
+        console.log("Character with moves " + characterWithMoves[0].moves);
     }catch(err){
         console.log(err);
     }
-        return(characterWithMoves);
+    return(characterWithMoves);
 }
+
+
+export const getCharacterMove = async (characterName, move) => {
+  try {
+    // Get a reference to the specific move document
+    const moveDocRef = doc(db, `characters/${characterName}/moves/${move}`);
+    
+    // Retrieve the document
+    const moveDocSnapshot = await getDoc(moveDocRef);
+
+    // Check if the document exists
+    if (moveDocSnapshot.exists()) {
+      // If it exists, return the document data
+      const moveData = moveDocSnapshot.data();
+      moveData.id = move;
+      return moveData;
+    } else {
+      // Handle the case where the document does not exist
+      console.log("No such move");
+      return null;
+    }
+  } catch (err) {
+    // Handle errors
+    console.error("Error retrieving move data:", err);
+    return null;
+  }
+};
 
 export const getAllCharacterNames = async () => {
   const charactersCollectionRef = collection(db, "characters");
@@ -116,9 +145,3 @@ export const getCharacterNames = async () => {
 
 
 
-const transformId = (id) => {
-    return id
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-    };

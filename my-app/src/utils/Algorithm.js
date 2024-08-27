@@ -1,5 +1,4 @@
-import { getDocs, collection } from "firebase/firestore";
-import { db } from "./Config/firebase-config";
+
 
 
 
@@ -33,18 +32,46 @@ export function setStartUpCalc(move, initStartUp, jumpSquat){
   const grabLag = 4;
   try{
     if(move.isUpB || move.isUpSmash){
-      return initStartUp;
+      move.startUp = initStartUp;
+      return move;
     }else if(move.isAerial){
-      return initStartUp + jumpSquat;
+      move.startUp = initStartUp + jumpSquat;
+      return move
     }else if( (move.id).includes("Grab")){
-      return initStartUp + grabLag;
+      move.startUp = initStartUp + grabLag;
+      return move;
     }else{
-      return initStartUp + shieldDropLag;
+      move.startUp = initStartUp + shieldDropLag;
+      return move;
     }
   }catch(err){
     console.log(err)
     return;
   }
+}
+
+export const getStartUpMap = async (pCharMoves, selectedPChar) =>{
+  const startUpMap = new Map();
+  var jumpSquat;
+  if(selectedPChar === "Kazuya"){
+    jumpSquat = 7;
+  }else{
+    jumpSquat = 3;
+  }
+  for(const move of pCharMoves){
+    if((move.id).includes(""))
+    //calc all start ups
+    console.log(move);
+    const startUp = await processStartUpValue(move.startup);
+    if(startUp !== null) {
+      console.log("start up not null" + startUp);
+      startUpMap.set(move.id, setStartUpCalc(move, startUp, jumpSquat));
+      console.log(" startUPmap object " + startUpMap.get(move.id));
+    }else{
+      console.log("start up null" + startUp);
+    }
+  }
+  return startUpMap;
 }
  
   

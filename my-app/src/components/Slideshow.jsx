@@ -1,8 +1,8 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 
-function Slideshow({ images }) {
+function Slideshow({ images, onIndexChange }) {
     const [currentIndex, setCurrentIndex] = useState(0);
-    console.log("in slideshow" + images.length + images);
+    console.log("in slideshow " + images.length + " " +  images);
     const handlePrev = () => {
       setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
     };
@@ -10,29 +10,36 @@ function Slideshow({ images }) {
     const handleNext = () => {
       setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
     };
+
+
+    useEffect(() => {
+        // Notify parent about the current index
+        if (onIndexChange) {
+          onIndexChange(currentIndex);
+        }
+      }, [currentIndex, onIndexChange]);
   
     if(images.length === 0){
         return (
         <div className="Error">
-            <h1> No images </h1>
+            <h2> No images </h2>
         </div>);
     }
     
-    if(images.length === 1){
-        const image = images[0];
+    if(typeof images === 'string' || images.length === 1){
         return(
-            <div className="singleSlide">
-                <img src={image} alt="Slide Center" className="slide slide-center" />
-            </div>
+                <div className="slideshow-container">
+                        <img src={images} alt="Slide Center" className="slide slide-center" />
+                </div>
+            
         )
     }
-    // Ensure there are at least 3 images
+   
     if (images.length === 2) {
         const slideCenter = images[currentIndex];
         const slideAfter = images[(currentIndex + 1) % images.length];
         const slideBefore = images[(currentIndex - 1 + images.length) % images.length];
         return(
-            <div className="slideshow">
                 <div className="slideshow-container">
                     <img src={slideBefore} alt="Slide Before" className="slide slide-before" />
                     <img src={slideCenter} alt="Slide Center" className="slide slide-center" />
@@ -49,7 +56,6 @@ function Slideshow({ images }) {
                     </button>
                 </div>
                 
-            </div> 
         );
     }
   

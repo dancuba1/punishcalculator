@@ -13,4 +13,4 @@ const ToggleVisibility = ({ children }) => {
     )
 }
 
-export default ToggleVisibility
+export default ToggleVisibility 

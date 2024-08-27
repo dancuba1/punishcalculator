@@ -2,10 +2,6 @@ import React, { useState } from "react";
 
 function Dropdown({ selected, setSelected, options = [] }) {
   const [isActive, setIsActive] = useState(false);
-  for(const option of options){ 
-    console.log("Options " + option);
-  };
-  
   return (
     <div className="dropdown">
       <div
