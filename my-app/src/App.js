@@ -15,29 +15,9 @@ import ToggleVisibility from './components/ToggleVisibility.jsx';
 import { getStartUpMap } from './utils/Algorithm.js';
 import { invertId, invertIds, transformId, transformIds } from './utils/stringManip.js';
 import { AppHeader } from './components/AppHeader.jsx';
-import initSqlJs from 'sql.js/dist/sql-wasm';
 
 
 
-let db;
-
-const loadDatabase = async () => {
-  const fs = require('fs');
-  const filebuffer = fs.readFileSync('moves.sqlite');
-  
-  initSqlJs().then(function(SQL){
-    // Load the db
-    db = new SQL.Database(filebuffer);
-  });
-    // Create function to query database
-    db.create_function("getImageName", (character, move) => {
-        const query = `SELECT image_name FROM moves WHERE character_name = ? AND move_name = ?`;
-        const result = db.exec(query, [character, move]);
-        return result.length > 0 ? result[0].values[0][0] : null;
-    });
-};
-
-loadDatabase();
 
 
 function App() {
