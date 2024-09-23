@@ -1,45 +1,73 @@
-import React from "react";
-import { processStartUpValue } from "../utils/Algorithm.js";
+import React, { useState, useEffect } from "react";
+import { processStartUpValue, setStartUpCalc } from "../utils/Algorithm.js";
 
-export function OutputInfo({ aMove, pMove }) {
-    try {
-        // Ensure aMove and pMove exist and have the required properties before processing
-        if (!aMove || !pMove) {
-            throw new Error("Move data is missing");
+export function OutputInfo({ aMove, pMove, jumpSquat }) {
+    const [frameAdvantage, setFrameAdvantage] = useState(0);
+
+    useEffect(() => {
+        try {
+            // Ensure aMove and pMove exist and have the required properties before processing
+            if (!aMove || !pMove) {
+                throw new Error("Move data is missing");
+            }
+
+            const initStartUp = pMove.startup;
+            const newPMove = setStartUpCalc(pMove, initStartUp, jumpSquat);
+            console.log("newPMove startup " + newPMove.startup);
+            // Calculate the frame advantage and update state
+        } catch (err) {
+            console.error("An error occurred:", err.message);
         }
+    },[]); // Re-run effect only when aMove, pMove, or jumpSquat change
 
-        console.log("AMOVEID" , aMove.id);
-
-        const frameAdvantage = -(processStartUpValue(aMove.advantage) + processStartUpValue(pMove.startup));
-        console.log("frame advantage", frameAdvantage);
-
-        let moveDetail = "";
-        let perfectLanding = "";
-
-        if (aMove.isAerial) {
-            moveDetail = "If landing in the area of the first";
-            perfectLanding = " perfectly landed";
-        } else {
-            moveDetail = "If hit near the first";
+    //calculate new frame advantage, when a new pMove is loaded
+    useEffect(() => {
+        if(pMove!= null){
+            const calculatedFrameAdvantage = -(processStartUpValue(aMove.advantage) + pMove.startup);
+            setFrameAdvantage(calculatedFrameAdvantage);
         }
+      
+    }, [pMove])
+  
 
-        return (
+    // Prepare the output based on whether aMove is an aerial move or not
+    
+    const [moveDetail, perfectLanding, noTruePunishMessage] = getDialogue(aMove);
+   
+    //Returns a message for if a move is unpunishable
+    if(pMove==="Unpunishable"){
+        return(
             <div className="outputinfo">
-                <h2 className="outputheader">Output</h2>
-                <h3 className="outputtext">
-                    {moveDetail} {frameAdvantage} Frames of {pMove.id}, a{perfectLanding} {aMove.id} can be punished
-                </h3>
-            </div>
-        );
-    } catch (err) {
-        // Display the error in a user-friendly way
-        return (
-            <div className="outputinfo">
-                <h2 className="outputheader">Error</h2>
-                <h3 className="outputtext">An error occurred: {err.message}</h3>
-            </div>
+            <h2 className="outputheader">Output</h2>
+            <h3 className="outputtext">
+                {aMove?.id} cannot be true punished, however, 3 of the punishing character's fastest moves have been provided, {noTruePunishMessage} 
+            </h3>
+        </div>
         );
     }
+
+    return (
+        <div className="outputinfo">
+            <h2 className="outputheader">Output</h2>
+            <h3 className="outputtext">
+                {moveDetail} {frameAdvantage} Frames of {pMove?.id}, a{perfectLanding} {aMove?.id} can be punished
+            </h3>
+        </div>
+    );
 }
 
+const getDialogue = (aMove) => {
+    let moveDetail = "";
+    let perfectLanding = "";
+    let noTruePunishMessage = "";
+    if (aMove && aMove.isAerial) {
+        moveDetail = "If landing in the area of the first";
+        perfectLanding = " perfectly landed";
+        noTruePunishMessage = "in case of an imperfectly landed attack"
+    } else {
+        moveDetail = "If hit near the first";
+        noTruePunishMessage = "in case of your opponent mashing"
+    }
+    return[moveDetail, perfectLanding, noTruePunishMessage];
+}
 export default OutputInfo;

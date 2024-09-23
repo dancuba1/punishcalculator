@@ -2,6 +2,19 @@ import React, { useEffect, useState } from "react"
 
 function Slideshow({ images, onIndexChange }) {
     const [currentIndex, setCurrentIndex] = useState(0);
+    useEffect(() => {
+      // Notify parent about the current index
+      if (onIndexChange) {
+        onIndexChange(currentIndex);
+      }
+    }, [currentIndex, onIndexChange]);
+    if (!images) {
+      return (
+        <div className="Error">
+          <h2>Error: Images not found</h2>
+        </div>
+      );
+    }
     console.log("in slideshow " + images.length + " " +  images);
     const handlePrev = () => {
       setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
@@ -12,12 +25,7 @@ function Slideshow({ images, onIndexChange }) {
     };
 
 
-    useEffect(() => {
-        // Notify parent about the current index
-        if (onIndexChange) {
-          onIndexChange(currentIndex);
-        }
-      }, [currentIndex, onIndexChange]);
+    
   
     if(images.length === 0){
         return (

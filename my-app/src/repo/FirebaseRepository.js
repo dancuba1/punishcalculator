@@ -1,6 +1,6 @@
 import { getDocs, collection, doc, getDoc } from "firebase/firestore";
 import { db } from "../Config/firebase-config";
-import { transformId } from "../utils/stringManip.js";
+import { invertId, transformId } from "../utils/stringManip.js";
 
 export const getCharacterData = async (character) => {
     const characterWithMoves = [];
@@ -31,9 +31,10 @@ export const getCharacterData = async (character) => {
 
 export const getCharacterMove = async (characterName, move) => {
   try {
+    const charId = invertId(characterName);
     // Get a reference to the specific move document
-    const moveDocRef = doc(db, `characters/${characterName}/moves/${move}`);
-    
+    const moveDocRef = doc(db, `characters/${charId}/moves/${move}`);
+    console.log(moveDocRef);
     // Retrieve the document
     const moveDocSnapshot = await getDoc(moveDocRef);
 

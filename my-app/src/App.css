@@ -42,9 +42,11 @@
   align-self: flex-start;
   justify-content: center;
   position: relative;
-  padding-left: 5%;
+  margin-left: 5%;
   font-size: calc(5px + 2vmin);
-  color: white;
+  color: 1E1E1E;
+  -webkit-text-fill-color: white;
+  -webkit-text-stroke: 0.5px;
   font-family: 'Koulan', sans-serif;
   letter-spacing: 10px;
 }
@@ -83,7 +85,6 @@ h4{
   position: relative;
   user-select:none;
   z-index: 2;
-
 }
 
 
@@ -96,6 +97,8 @@ h4{
   display: flex;
   font-weight: bold;
   align-items: center;
+  align-content: center;
+  text-align: center;
   cursor: pointer;
   font-size: calc(5px + 1.5vmin);
 
@@ -104,9 +107,9 @@ h4{
 }
 
 .dropdown .dropdown-content {
-  top: 110%;
-  width: 100%;
-  left: 0;
+  top: 100%;
+  width: 88%;
+  left: 6%;
   color: #333;
   position: absolute;
   max-height: 200px; /* Adjust based on your preference */
@@ -146,6 +149,9 @@ h4{
   width: 100%;
   padding: 10px;
 }
+.dropdown-button{
+  text-align: center;
+}
 
 
 
@@ -158,6 +164,7 @@ h4{
     justify-content:flex-start;
     gap: 10px;
     width: 100%;
+    margin-top: 5%;
     padding: 0 10px;
     height: fit-content;
   }
@@ -172,6 +179,8 @@ h4{
     width: 100%; /* Ensure each dropdown is the same width */
     margin-bottom: 0px; /* Space between dropdowns */
   }
+
+  
   .selectCharacter{
     flex: 1;
     margin: 10px;
@@ -199,6 +208,16 @@ h4{
   margin: 10px;
   text-align: center;
   padding: 20px;
+}
+
+.dropdown-input {
+  border: none;          /* Removes the border */
+  outline: none;         /* Removes the outline on focus */
+  width: 50%;           /* Ensures the input takes full width */
+  padding: 5px;          /* Optional: Add some padding */
+  background: none;      /* Removes any background color */
+  font: inherit;         /* Ensures the font is consistent */
+  color: inherit;        /* Inherit color from the parent */
 }
 
 
@@ -303,6 +322,8 @@ h4{
 
 .outputheader{
   text-align: center;
+  font-weight: bold;
+
 }
 
 .outputtext{

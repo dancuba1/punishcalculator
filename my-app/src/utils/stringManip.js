@@ -41,6 +41,35 @@ export const transformId = (id) => {
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
 };
+export const transformIds = (ids) => {
+    for (let i = 0; i < ids.length; i++) {
+        ids[i] = ids[i]
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+    return ids;
+};
+
+export const invertIds = (ids) => {
+    for (let i = 0; i < ids.length; i++) {
+        ids[i] = ids[i]
+            .split(' ')
+            .map(word => word.charAt(0).toLowerCase() + word.slice(1))
+            .join('_');
+    }
+    return ids;
+};
+
+
+export const invertId = (id) => {
+    return id
+            .split(' ')
+            .map(word => word.charAt(0).toLowerCase() + word.slice(1))
+            .join('_');
+    
+};
+
 
 export const removeUnderscore = (id) => {
     return id

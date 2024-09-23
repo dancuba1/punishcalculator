@@ -1,47 +1,62 @@
+import { fetchGifs } from "../repo/CharacterGifs";
+import { invertId } from "./stringManip";
 
 
-
-
+//retreives a useable start up value
 export function processStartUpValue(value) {
-    // Ensure the value is a string
-    if (typeof value === 'string') {
-        // Check if the value contains a '/'
-        if (value.includes('/')) {
-            // Split the string by '/' and trim any extra spaces
-            const parts = value.split('/').map(part => part.trim());
-            // Convert parts to integers and filter out non-numeric values
-            const numbers = parts.map(part => parseInt(part, 10)).filter(num => !isNaN(num));
-            // Return the lowest number if there are any valid numbers
-            return numbers.length > 0 ? Math.min(...numbers) : null;
-        } else {
-            // Convert the string to an integer
-            const number = parseInt(value, 10);
-            // Return the integer if it is valid
-            return !isNaN(number) ? number : null;
-        }
-    }
+  if (typeof value === 'string') {
+      if (value.includes('/')) {
+          const parts = value.split('/').map(part => part.trim());
+          const numbers = parts.map(part => parseInt(part, 10)).filter(num => !isNaN(num));
+          return numbers.length > 0 ? Math.min(...numbers) : null;
+      } else {
+          const number = parseInt(value, 10);
+          return !isNaN(number) ? number : null;
+      }
+  }else if(typeof value === 'number'){
+    return value;
+  
+
+  } else {
+      // Log if the value is undefined or not a string
+      console.warn("Invalid value for processStartUpValue:", value);
+      return null;
+  }
 }
+
 
 
 export function getImage(){
   return;
 }
 
+//adds start up frames that are dependant on move type
 export function setStartUpCalc(move, initStartUp, jumpSquat){
   const shieldDropLag = 11;
   const grabLag = 4;
+  console.log("current js" + jumpSquat.current);
   try{
     if(move.isUpB || move.isUpSmash){
-      move.startUp = initStartUp;
+      move.startup = initStartUp;
       return move;
     }else if(move.isAerial){
-      move.startUp = initStartUp + jumpSquat;
+      console.log("In isAerial JumpSquat: " + jumpSquat.current);
+      move.startup = initStartUp + jumpSquat.current;
       return move
     }else if( (move.id).includes("Grab")){
-      move.startUp = initStartUp + grabLag;
+      if((move.id).includes("Dash Grab")){
+        move.startup = initStartUp + shieldDropLag;
+        return move;
+      }else{
+        move.startup = initStartUp + grabLag;
+        return move;
+      }
+    }else if((move.id).includes("Aerial")){
+      move.startup = initStartUp + jumpSquat.current;
       return move;
     }else{
-      move.startUp = initStartUp + shieldDropLag;
+      console.log("MuST SHIELD DROP");
+      move.startup = initStartUp + shieldDropLag;
       return move;
     }
   }catch(err){
@@ -50,18 +65,14 @@ export function setStartUpCalc(move, initStartUp, jumpSquat){
   }
 }
 
-export const getStartUpMap = async (pCharMoves, selectedPChar) =>{
+//greater function for getting all start ups for a character
+export const getStartUpMap = async (pCharMoves, selectedPChar, jumpSquat) =>{
   const startUpMap = new Map();
-  var jumpSquat;
-  if(selectedPChar === "Kazuya"){
-    jumpSquat = 7;
-  }else{
-    jumpSquat = 3;
-  }
+  
   for(const move of pCharMoves){
     if((move.id).includes(""))
     //calc all start ups
-    console.log(move);
+    console.log(move.startup);
     const startUp = await processStartUpValue(move.startup);
     if(startUp !== null) {
       console.log("start up not null" + startUp);
@@ -75,3 +86,127 @@ export const getStartUpMap = async (pCharMoves, selectedPChar) =>{
 }
  
   
+export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, selectedChar, selectedMoveId, jumpSquat) => {
+  console.log("moveSelect " + moveSelect);
+  console.log("pCharMoves " + pCharMoves);
+  //make sure the a move is selected and punishing character also
+  const isMoveSelectNotEmpty = moveSelect && typeof moveSelect === 'object' && Object.keys(moveSelect).length > 0;
+
+  
+  if(!isMoveSelectNotEmpty){
+    //Insert Pop up saying a move must be selected
+    return [[], [], null, selectedPChar, selectedChar, moveSelect];
+
+  }
+  if(isMoveSelectNotEmpty && pCharMoves.length > 0){
+    try {
+     //map for moves' id to total start up when calculated.
+      
+      
+      if((selectedMoveId).includes("Grab")){
+        const url = await handleACharFetchGifs(selectedChar, selectedMoveId);
+        const [newPunishingMoves, urls] = await getFastestPCharMoves(pCharMoves, selectedPChar, jumpSquat);
+        return [newPunishingMoves, urls, url];
+      }
+      
+       //for each move the punishing character 
+     const startUpMap = await getStartUpMap(pCharMoves, invertId(selectedPChar), jumpSquat);
+     
+      console.log("START UP MAP"  + startUpMap);
+
+  
+      // Retrieve all urls and moves
+      const [urls, newPunishingMoves] = await handlePCharFetchGifs(moveSelect, startUpMap, selectedPChar);
+      const url = await handleACharFetchGifs(selectedChar, selectedMoveId);
+      return [newPunishingMoves, urls, url, selectedPChar, selectedChar, moveSelect];
+
+    } catch (err) {
+      console.log(err);
+      return [[], [], null, selectedPChar, selectedChar, moveSelect];
+
+    }
+  }else{
+    console.log("One Empty array at least");
+    return [[], [], null, selectedPChar, selectedChar, moveSelect];
+
+  }
+}
+
+
+export const getFastestPCharMoves = async (pCharMoves, selectedPChar, jumpSquat) => {
+  console.log("in getFastestPCharMoves");
+  // Get the map of all moves and their startup times
+  const startUpMap = await getStartUpMap(pCharMoves, invertId(selectedPChar), jumpSquat);
+  
+  // Convert the Map to an array of entries ([moveId, moveObject])
+  const startUpArray = Array.from(startUpMap.entries());
+
+  // Sort the array based on the 'startup' value of the move objects (ascending order)
+  const sortedStartUpArray = startUpArray.sort(([, moveA], [, moveB]) => moveA.startup - moveB.startup);
+
+  // Get the top 3 fastest moves
+  const top3Moves = sortedStartUpArray.slice(0, 3);
+
+  // Extract and return the move IDs of the top 3 fastest moves
+  const top3MoveIds = top3Moves.map(([moveId]) => moveId);
+  const urls = await fetchGifs(invertId(selectedPChar), top3MoveIds, true);
+
+  console.log(top3MoveIds);
+  return [top3MoveIds, urls];
+};
+
+async function handlePCharFetchGifs(moveSelect, startUpMap, selectedPChar) {
+  var urls = []
+  const newPunishingMoves = [];
+  if(moveSelect.advantage === "Shield Breaks"){
+    console.log("Found Shield Break")
+    urls = moveSelect.advantage;
+    return;
+  }else if(moveSelect.advantage === "--"){
+    urls = "No advantage found";
+    return;
+  }else{
+    try {
+      for (let [key, value] of startUpMap) {
+        console.log("Move ID:", key);
+        const processedAdvantage = await processStartUpValue(moveSelect.advantage);
+        console.log(processedAdvantage);
+        console.log("VALUE " + value);
+        const difference = value.startup + processedAdvantage;
+        try {
+          if (difference < 0) {
+            console.log("difference found " + difference);
+            if(!(key.includes("Hit 2") || key.includes("Hit 3") || key.includes("Hit 4") || key.includes("Jab 2") || key.includes("Jab 3") || key.includes("Rapid Jab"))){
+              newPunishingMoves.push(value);
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+  
+      console.log("New Punishing Moves", newPunishingMoves);
+  
+      // Set the new punishing moves to state
+  
+      // Fetch GIFs with the updated punishing moves
+      urls = await fetchGifs(invertId(selectedPChar), newPunishingMoves, false);
+    } catch (error) {
+      console.error("Error fetching GIFs:", error);
+
+    }
+  }
+  return [urls, newPunishingMoves];
+}
+
+async function handleACharFetchGifs(selectedChar, selectedMoveId){
+  var url = "";
+  try{
+   url = await fetchGifs(invertId(selectedChar), selectedMoveId, true);
+   console.log("Found url ", url);
+  }catch(err){
+   console.log(err);
+  }
+
+  return url;
+}

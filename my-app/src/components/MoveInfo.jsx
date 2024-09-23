@@ -1,15 +1,14 @@
 import React from "react";
-import Slideshow from "./Slideshow";
 
 export function MoveInfo({ currentMove, isPMove }){
     if(isPMove){
         try{
             const startUp = currentMove.startup;
-            const activeFrames = currentMove.activeFrames;
+            const baseDamage = currentMove.baseDamage;
             return(
                 <div className="moveinfo">
                     <h3 className="startupinfo">Startup: {startUp} Frames </h3>
-                    <h4 className="activeinfo">Active on: {activeFrames}</h4>
+                    <h4 className="activeinfo">Base Damage: {baseDamage}</h4>
                 </div>
             
             );

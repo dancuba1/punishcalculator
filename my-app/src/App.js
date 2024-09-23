@@ -1,34 +1,49 @@
 import './App.css';
-import { useState, useEffect, useReducer } from "react";
-import {processStartUpValue, getImage, setStartUpCalc } from "./utils/Algorithm.js";
+import { useState, useEffect, useReducer, useRef } from "react";
+import ToastList from "./components/ToastList/ToastList";
+
+import {processStartUpValue, getImage, setStartUpCalc, punishCalculation, getFastestPCharMoves } from "./utils/Algorithm.js";
 import { getAllCharactersData, getAllCharacterNames, getCharacterData, getCharacterNames, getCharacterMove } from "./repo/FirebaseRepository.js";
 import { fetchGifs } from "./repo/CharacterGifs.jsx";
 import Dropdown from "./components/Dropdown.jsx";
 import Slideshow from "./components/Slideshow.jsx";
+import { useJumpSquat } from './hooks/useJumpSquat.js';
 import CalcOutput from "./components/CalcOutput.jsx";
 
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import ToggleVisibility from './components/ToggleVisibility.jsx';
 import { getStartUpMap } from './utils/Algorithm.js';
+import { invertId, invertIds, transformId, transformIds } from './utils/stringManip.js';
+import { AppHeader } from './components/AppHeader.jsx';
+import initSqlJs from 'sql.js/dist/sql-wasm';
 
 
-function reducer(state, action){
-  switch(action.type){
-    case "setAChar":
-      return [];
-    default:
-      return;
-  }
-}
+
+let db;
+
+const loadDatabase = async () => {
+  const fs = require('fs');
+  const filebuffer = fs.readFileSync('moves.sqlite');
+  
+  initSqlJs().then(function(SQL){
+    // Load the db
+    db = new SQL.Database(filebuffer);
+  });
+    // Create function to query database
+    db.create_function("getImageName", (character, move) => {
+        const query = `SELECT image_name FROM moves WHERE character_name = ? AND move_name = ?`;
+        const result = db.exec(query, [character, move]);
+        return result.length > 0 ? result[0].values[0][0] : null;
+    });
+};
+
+loadDatabase();
+
 
 function App() {
 
-  const[aChar, dispatch] = useReducer(reducer, []);
   
-
-  function setAChar(char){
-    dispatch({type: "setAChar"})
-  }
+  const jumpSquat = useJumpSquat();
 
   const storage = getStorage();
   //characters and all their moves
@@ -61,13 +76,15 @@ function App() {
   //boolean to detect when move selection should be reset to "Select Move"
   const [resetMove, setResetMove] = useState(false);
 
+
+  //GET ALL CHARACTER NAMES, runs once
   useEffect(() => {
     const displayCharacterInfo = async () => {
       try {
         //const characters = await getAllCharactersData();
         //setCharacterList(characters);
-        
-        setCharacterSelect(await getAllCharacterNames());
+        const charNames = await getAllCharacterNames()
+        setCharacterSelect(transformIds(charNames));
         console.log(characterSelect);
       } catch (err) {
         console.log(err);
@@ -77,11 +94,12 @@ function App() {
   }, []);
 
 
+
   useEffect(() => {
       console.log("Not Character Select");
       const handleCharacterMoves = async () => {
         try {
-          const characterWithMoves = await getCharacterData(selectedChar);
+          const characterWithMoves = await getCharacterData(invertId(selectedChar));
           console.log(characterWithMoves);
   
           // Set move IDs with new array, not by spreading existing state
@@ -95,11 +113,7 @@ function App() {
     
   }, [selectedChar])
 
-  //set character data to the character selected and set the select move dropdown
-
-  const setACharData = () => {
-
-  }
+  
   useEffect(() => {
     if(characterList.length > 0){
       const getCharMoves = (charName) => {
@@ -112,7 +126,7 @@ function App() {
           setSelectedMoveId("Select Move");
           setResetMove(false);
         }
-        const moves = getCharMoves(selectedChar);
+        const moves = getCharMoves(invertIds(selectedChar));
         setCharMoves(moves);
         setMoveIds(charMoves.map(move => move.id));
       }
@@ -140,7 +154,7 @@ function App() {
   }, [selectedPChar]);
 
   const getPCharMoves = async (charName) => {
-      const character = await getCharacterData(charName);
+      const character = await getCharacterData(invertId(charName));
       console.log("in getPCharMoves", character);
       
       // Return the moves or an empty array if not found
@@ -161,132 +175,124 @@ function App() {
     }
   }, [selectedMoveId]); 
 
-  var calcToggle = false;
+  const [toasts, setToasts] = useState([]);
+  const [autoClose, setAutoClose] = useState(true);
+  const [autoCloseDuration, setAutoCloseDuration] = useState(5);
+  const [position, setPosition] = useState("bottom-right");
 
+  const positions = {
+    "top-right": "Top-right",
+    "top-left": "Top-left",
+    "bottom-right": "Bottom-right",
+    "bottom-left": "Bottom-left",
+  };
+  const showToast = (message, type) => {
+    const toast = {
+      id: Date.now(),
+      message,
+      type,
+    };
+
+    setToasts((prevToasts) => [...prevToasts, toast]);
+
+    if (autoClose) {
+      setTimeout(() => {
+        removeToast(toast.id);
+      }, autoCloseDuration * 1000);
+    }
+  };
+  const removeToast = (id) => {
+    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+  };
+
+  const removeAllToasts = () => {
+    setToasts([]);
+  };
+
+  const handleDurationChange = (event) => {
+    setAutoCloseDuration(Number(event.target.value));
+  };
+
+  const handleAutoCloseChange = () => {
+    setAutoClose((prevAutoClose) => !prevAutoClose);
+    removeAllToasts();
+  };
+
+  const handlePositionChange = (event) => {
+    setPosition(event.target.value);
+  };
+
+  
   const [punishingMoves, setPunishingMoves] = useState([]);
+  const [previousAChar, setPreviousAChar] = useState("");
+  const [previousAMove, setPreviousAMove] = useState("");
+  const [previousPChar, setPreviousPChar] = useState("");
   const calculatePunish = async () => {
-    calcToggle = true;
-    console.log("moveSelect " + moveSelect);
-    console.log("pCharMoves " + pCharMoves);
-    //make sure the a move is selected and punishing character also
-    const isMoveSelectNotEmpty = moveSelect && typeof moveSelect === 'object' && Object.keys(moveSelect).length > 0;
 
-    if(!isMoveSelectNotEmpty){
-      //Insert Pop up saying a move must be selected
-    }
-    if(isMoveSelectNotEmpty && pCharMoves.length > 0){
-      try {
-       //map for moves' id to total start up when calculated.
-
-        
-         //for each move the punishing character 
-         const startUpMap = await getStartUpMap(pCharMoves, selectedPChar);
-       
-        console.log("START UP MAP"  + startUpMap);
-
-        async function handlePCharFetchGifs() {
-          try {
-            // Wait for fetchGifs to complete and return URLs
-            //ADD VARIATION TO DIFFERENT ADVANTAGES
-            for(let [key, value] of startUpMap){
-              console.log("Move ID:", key);
-
-              const processedAdvantage = await processStartUpValue(moveSelect.advantage)
-              console.log(processedAdvantage);
-
-              const difference = value.startUp + processedAdvantage;
-              try{
-                if(difference < 0){
-                  setPunishingMoves(prevMoves => [value, ...(prevMoves || [])]);
-                }
-              }catch(err){
-                handleError(err);
-              }
-            }
-              
-           
-            console.log("Punishing Moves " + punishingMoves)
-           
-            const urls = await fetchGifs(selectedPChar, punishingMoves);
-            
-            // Set the fetched URLs into the state
-            setSSImages(urls);
-          } catch (error) {
-            console.error("Error fetching GIFs:", error);
-            // Handle errors if needed
-          }
-        }
-        
-        async function handleACharFetchGifs(){
-           try{
-            const url = await fetchGifs(selectedChar, selectedMoveId);
-
-            setSingleImage(url);
-           }catch(err){
-            console.log(err);
-           }
-        }
-        // Calling the function
-        handlePCharFetchGifs();
-        handleACharFetchGifs();
-
-      } catch (err) {
-        console.log(err);
-      }
+    if(selectedPChar === "Kazuya"){
+      jumpSquat.current = 7;
     }else{
-      console.log("One Empty array at least");
+      jumpSquat.current = 3;
     }
+    console.log("calculatePunish jumpsquat" + jumpSquat.current); 
+
+    try{
+      if (previousAChar === selectedChar && previousAMove === selectedMoveId && previousPChar === selectedPChar) {
+        // No need to recalculate since the inputs are the same
+        console.log("No need to recalculate, same inputs as before.");
+        return;
+      }
+
+      if(selectedMoveId.includes("Grab")){
+        //handleGrabInput();
+        return;
+      }
+      const [newPunishingMoves, urls, url] = await punishCalculation(
+        moveSelect,
+        pCharMoves,
+        selectedPChar,
+        selectedChar,
+        selectedMoveId,
+        jumpSquat);
+
+      if(newPunishingMoves.length>0){
+        setIsPunishable(true);
+        console.log("nPMoves length " + newPunishingMoves.length);
+        setPunishingMoves(newPunishingMoves);
+        setSSImages(urls);
+        setSingleImage(url);  
+      }else{
+        setIsPunishable(false);
+        const [top3Moves, urls] = await getFastestPCharMoves(pCharMoves, selectedPChar, jumpSquat)
+        setPunishingMoves(top3Moves);
+        setSSImages(urls);
+        setSingleImage(url);
+      }
+      
+
+      setPreviousAChar(selectedChar);
+      setPreviousAMove(selectedMoveId);
+      setPreviousPChar(selectedPChar);
+    }catch(err){
+      console.error(err);
+      showToast("Error on our part!", "failure");
+    }
+   
+ 
+   
   };
 
 
-
+  const [isPunishable, setIsPunishable] = useState(true);
   const [ssImages, setSSImages] = useState([]);
   const [singleImage, setSingleImage] = useState([]);
-
-  //example calc
-  useEffect(() =>  {
-    const storage = getStorage();
-    const refs = [
-      ref(storage, 'falco/Falco Up Smash.gif'),
-      ref(storage, 'falco/Falco Up Tilt.gif'),
-      ref(storage, 'falco/Falco Forward Air.gif')
-    ];
-    const single = ref(storage, 'falco/Falco Up Smash.gif');
-  
-    // Fetch single image
-    getDownloadURL(single).then((url) => {
-      setSingleImage(url);
-    }).catch(handleError);
-  
-    // Fetch multiple images
-    const fetchImages = async () => {
-      const urls = await Promise.all(
-        refs.map((fRef) => getDownloadURL(fRef).catch(handleError))
-      );
-      setSSImages(urls);
-    };
-  
-    fetchImages();
-  }, []); // Dependency array to prevent re-runs
-  
-  const handleError = (error) => {
-    // Handle the error
-    console.error(error);
-  };
   
   
 
   return (
     <div className="App">
       <div className='content-container'>
-        <div className="App-header">
-          <h2>Smash Ultimate</h2>
-          <div className="punishCalculator">
-            <h1>Punish</h1>
-            <h1>Calculator</h1>
-          </div>
-        </div>
-
+        <AppHeader/>
         <div className="dropdownContainer">
             <Dropdown
               className = "selectCharacter"
@@ -313,6 +319,8 @@ function App() {
             singleImage = {singleImage}
             aMove = {moveSelect}
             pMoves={punishingMoves}
+            jumpSquat={jumpSquat}
+            isPunishable={isPunishable}
             />
         </div>
         <div className='button'>
@@ -321,8 +329,37 @@ function App() {
           </button>
         </div>
       </div>
+      <ToastList data={toasts} position={position} removeToast={removeToast}/>
     </div>
   );
 }
+
+/*
+  //example calc
+  useEffect(() =>  {
+    const storage = getStorage();
+    const refs = [
+      ref(storage, 'falco/Falco Up Smash.gif'),
+      ref(storage, 'falco/Falco Up Tilt.gif'),
+      ref(storage, 'falco/Falco Forward Air.gif')
+    ];
+    const single = ref(storage, 'falco/Falco Up Smash.gif');
+  
+    // Fetch single image
+    getDownloadURL(single).then((url) => {
+      setSingleImage(url);
+    }).catch(handleError);
+  
+    // Fetch multiple images
+    const fetchImages = async () => {
+      const urls = await Promise.all(
+        refs.map((fRef) => getDownloadURL(fRef).catch(handleError))
+      );
+      setSSImages(urls);
+    };
+  
+    fetchImages();
+  }, []); // Dependency array to prevent re-runs
+  */
 
 export default App;

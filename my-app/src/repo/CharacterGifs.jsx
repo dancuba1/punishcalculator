@@ -1,14 +1,27 @@
 import { ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../Config/firebase-config";
-import { removeAllParentheses, lowercaseFirstLetter, removeSpecialSubstrings, capitaliseFirstLetter, transformId } from "../utils/stringManip.js";
+import { removeAllParentheses, lowercaseFirstLetter, removeSpecialSubstrings, capitaliseFirstLetter, transformId, invertId } from "../utils/stringManip.js";
+import db from "../App.js";
+
+const getGifRef = async (char, move) => {
+    if (!db) {
+        console.error("Database not loaded.");
+        return null;
+    }
+
+    // Query the database for the image name
+    const imageName = db.exec('SELECT image_name FROM moves WHERE character_name = ? AND move_name = ?', [char, move])[0]?.values[0]?.[0];
+    
+    if (imageName) {
+        return lowercaseFirstLetter(char) + '/' + transformId(char) + ' ' + removeAllParentheses(removeSpecialSubstrings(move)) + '.gif';
+    } else {
+        console.error("No matching image found in the database.");
+        return null;
+    }
+};
 
 
-const getGifRef = (char, move) => {
-    console.log("MOVE " +removeAllParentheses(removeSpecialSubstrings(move)));
-    return(lowercaseFirstLetter(char) + '/' + transformId(char) + ' ' + removeAllParentheses(removeSpecialSubstrings(move))  + '.gif');
-}
-
-export const fetchGifs = async (char, moves) => {
+export const fetchGifs = async (char, moves, isId) => {
     console.log("in Fetch gifs");
 
     var urls = []
@@ -16,12 +29,21 @@ export const fetchGifs = async (char, moves) => {
     const moveRefMap = {};
     if(Array.isArray(moves)){
         console.log("Found array");
-        for (const move of moves){
-            const gifRef = getGifRef(char, move.id);
-            console.log(`Generated gifRef for ${move.id}: `, gifRef);  // Debugging log
-
-            moveRefMap[move.id] = gifRef;
+        if(isId){
+            for (const move of moves){
+                const gifRef = getGifRef(char, move);
+                console.log(`Generated gifRef for ${move.id}: `, gifRef); 
+                moveRefMap[move] = gifRef;
+            }
+        }else{
+            for (const move of moves){
+                const gifRef = getGifRef(char, move.id);
+                console.log(`Generated gifRef for ${move.id}: `, gifRef);  // Debugging log
+    
+                moveRefMap[move.id] = gifRef;
+            }
         }
+        
         try{
             attemptedUrls =  await Promise.allSettled(
                 Object.values(moveRefMap).map(async (gifPath) => {
