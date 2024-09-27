@@ -1,19 +1,13 @@
 import './App.css';
-import { useState, useEffect, useReducer, useRef } from "react";
-import ToastList from "./components/ToastList/ToastList";
+import { useState, useEffect} from "react";
 
-import {processStartUpValue, getImage, setStartUpCalc, punishCalculation, getFastestPCharMoves } from "./utils/Algorithm.js";
-import { getAllCharactersData, getAllCharacterNames, getCharacterData, getCharacterNames, getCharacterMove } from "./repo/FirebaseRepository.js";
-import { fetchGifs } from "./repo/CharacterGifs.jsx";
+import { punishCalculation, getFastestPCharMoves } from "./utils/Algorithm.js";
+import { getAllCharacterNames, getCharacterData, getCharacterMove } from "./repo/FirebaseRepository.js";
 import Dropdown from "./components/Dropdown.jsx";
-import Slideshow from "./components/Slideshow.jsx";
 import { useJumpSquat } from './hooks/useJumpSquat.js';
 import CalcOutput from "./components/CalcOutput.jsx";
 
-import { getStorage, ref, getDownloadURL } from 'firebase/storage';
-import ToggleVisibility from './components/ToggleVisibility.jsx';
-import { getStartUpMap } from './utils/Algorithm.js';
-import { invertId, invertIds, transformId, transformIds } from './utils/stringManip.js';
+import { invertId, invertIds, transformIds } from './utils/stringManip.js';
 import { AppHeader } from './components/AppHeader.jsx';
 
 
@@ -88,7 +82,6 @@ function App() {
         }
       };
       handleCharacterMoves();
-      console.log("moveIds" + moveIds);
     
   }, [selectedChar])
 
@@ -154,52 +147,7 @@ function App() {
     }
   }, [selectedMoveId]); 
 
-  const [toasts, setToasts] = useState([]);
-  const [autoClose, setAutoClose] = useState(true);
-  const [autoCloseDuration, setAutoCloseDuration] = useState(5);
-  const [position, setPosition] = useState("bottom-right");
-
-  const positions = {
-    "top-right": "Top-right",
-    "top-left": "Top-left",
-    "bottom-right": "Bottom-right",
-    "bottom-left": "Bottom-left",
-  };
-  const showToast = (message, type) => {
-    const toast = {
-      id: Date.now(),
-      message,
-      type,
-    };
-
-    setToasts((prevToasts) => [...prevToasts, toast]);
-
-    if (autoClose) {
-      setTimeout(() => {
-        removeToast(toast.id);
-      }, autoCloseDuration * 1000);
-    }
-  };
-  const removeToast = (id) => {
-    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
-  };
-
-  const removeAllToasts = () => {
-    setToasts([]);
-  };
-
-  const handleDurationChange = (event) => {
-    setAutoCloseDuration(Number(event.target.value));
-  };
-
-  const handleAutoCloseChange = () => {
-    setAutoClose((prevAutoClose) => !prevAutoClose);
-    removeAllToasts();
-  };
-
-  const handlePositionChange = (event) => {
-    setPosition(event.target.value);
-  };
+ 
 
   
   const [punishingMoves, setPunishingMoves] = useState([]);
@@ -256,7 +204,6 @@ function App() {
       setCalcOutputVisible(true);
     }catch(err){
       console.error(err);
-      showToast("Error on our part!", "failure");
     }
    
  
@@ -317,7 +264,7 @@ function App() {
           </button>
         </div>
       </div>
-      <ToastList data={toasts} position={position} removeToast={removeToast}/>
+     
     </div>
   );
 }

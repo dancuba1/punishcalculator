@@ -1,9 +1,7 @@
-import { ref, getDownloadURL } from "firebase/storage";
-import { storage } from "../Config/firebase-config";
-import { removeAllParentheses, lowercaseFirstLetter, removeSpecialSubstrings, capitaliseFirstLetter, transformId, invertId } from "../utils/stringManip.js";
-import { getFunctions, httpsCallable } from "firebase/functions";
 
+import { capitaliseFirstLetter } from "../utils/stringManip.js";
 
+/*
 const getGifRef = (char, move) => {
     console.log("MOVE " +removeAllParentheses(removeSpecialSubstrings(move)));
     return(lowercaseFirstLetter(char) + '/' + transformId(char) + ' ' + removeAllParentheses(removeSpecialSubstrings(move))  + '.gif');
@@ -137,10 +135,6 @@ export const fetchGifs = async (char, moves, isId) => {
     return urls;
 }
 
-const getFormattedNames = (char, move) => {
-    console.log("MOVE " +removeAllParentheses(removeSpecialSubstrings(move)));
-    return [(transformId(char)), removeAllParentheses(removeSpecialSubstrings(move))];
-}
 
 const getAllClosestImageUrls = async (characterName, moves) => {
     console.log("getAllClosestImageURLs moveName : " + moves, "characterName: " + characterName);
