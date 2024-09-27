@@ -179,6 +179,10 @@ h4{
     width: 100%; /* Ensure each dropdown is the same width */
     margin-bottom: 0px; /* Space between dropdowns */
   }
+  .dropdown .dropdown-content{
+    position:static;
+    width: 100%;
+  }
 
   
   .selectCharacter{
