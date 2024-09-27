@@ -5,4 +5,6 @@ return(<div className="App-header">
             <h1>Punish</h1>
             <h1>Calculator</h1>
           </div>
+          <p>  v0.0.1</p>
+
         </div>);}
