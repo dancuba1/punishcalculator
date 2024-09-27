@@ -23,13 +23,14 @@ export function OutputInfo({ aMove, pMove, jumpSquat }) {
     //calculate new frame advantage, when a new pMove is loaded
     useEffect(() => {
         if(pMove!= null){
-            const calculatedFrameAdvantage = -(processStartUpValue(aMove.advantage) + pMove.startup);
-            setFrameAdvantage(calculatedFrameAdvantage);
+            handleFrameAdvantage()
         }
-      
     }, [pMove])
   
-
+    function handleFrameAdvantage(){
+            const calculatedFrameAdvantage = -(processStartUpValue(aMove.advantage) + pMove.startup);
+            setFrameAdvantage(calculatedFrameAdvantage);
+    }
     // Prepare the output based on whether aMove is an aerial move or not
     
     const [moveDetail, perfectLanding, noTruePunishMessage] = getDialogue(aMove);
