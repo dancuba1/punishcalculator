@@ -25,7 +25,6 @@ function App() {
   
   const jumpSquat = useJumpSquat();
 
-  const storage = getStorage();
   //characters and all their moves
   const [characterList, setCharacterList] = useState([]);
 
@@ -208,7 +207,7 @@ function App() {
   const [previousAMove, setPreviousAMove] = useState("");
   const [previousPChar, setPreviousPChar] = useState("");
   const calculatePunish = async () => {
-
+    setShowSpinner(true);
     if(selectedPChar === "Kazuya"){
       jumpSquat.current = 7;
     }else{
@@ -253,6 +252,8 @@ function App() {
       setPreviousAChar(selectedChar);
       setPreviousAMove(selectedMoveId);
       setPreviousPChar(selectedPChar);
+      setShowSpinner(false);
+      setCalcOutputVisible(true);
     }catch(err){
       console.error(err);
       showToast("Error on our part!", "failure");
@@ -267,7 +268,9 @@ function App() {
   const [ssImages, setSSImages] = useState([]);
   const [singleImage, setSingleImage] = useState([]);
   
-  
+  const [calcOutputVisibile, setCalcOutputVisible] = useState(false);
+  const [showSpinner, setShowSpinner]= useState(false);
+
 
   return (
     <div className="App">
@@ -293,6 +296,10 @@ function App() {
               setSelected={setSelectedPChar}
             />
         </div>
+        { showSpinner &&
+        <img src='./loading-spinner.svg' alt='spinner'/>
+        }
+        { calcOutputVisibile &&
         <div className="calcOutput">
           <CalcOutput
             ssImages = {ssImages}
@@ -303,6 +310,7 @@ function App() {
             isPunishable={isPunishable}
             />
         </div>
+        }
         <div className='button'>
           <button className='calcButton' onClick={() => calculatePunish()}>
             Calculate

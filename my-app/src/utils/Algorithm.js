@@ -108,9 +108,15 @@ export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, s
         const [newPunishingMoves, urls] = await getFastestPCharMoves(pCharMoves, selectedPChar, jumpSquat);
         return [newPunishingMoves, urls, url];
       }
+
+      if((moveSelect.advantage === "--")){
+        const url = await handleACharFetchGifs(selectedChar, selectedMoveId);
+        const [newPunishingMoves, urls] = await getFastestPCharMoves(pCharMoves, selectedPChar, jumpSquat);
+        return [newPunishingMoves, urls, url];
+      }
       
        //for each move the punishing character 
-     const startUpMap = await getStartUpMap(pCharMoves, invertId(selectedPChar), jumpSquat);
+      const startUpMap = await getStartUpMap(pCharMoves, invertId(selectedPChar), jumpSquat);
      
       console.log("START UP MAP"  + startUpMap);
 
@@ -176,7 +182,7 @@ async function handlePCharFetchGifs(moveSelect, startUpMap, selectedPChar) {
         try {
           if (difference < 0) {
             console.log("difference found " + difference);
-            if(!(key.includes("Hit 2") || key.includes("Hit 3") || key.includes("Hit 4") || key.includes("Jab 2") || key.includes("Jab 3") || key.includes("Rapid Jab"))){
+            if(notFollowingHits(key)){
               newPunishingMoves.push(value);
             }
           }
@@ -209,4 +215,8 @@ async function handleACharFetchGifs(selectedChar, selectedMoveId){
   }
 
   return url;
+}
+
+function notFollowingHits(key){
+  return !(key.includes("Hit 2") || key.includes("Hit 3") || key.includes("Hit 4") || key.includes("Jab 2") || key.includes("Jab 3") || key.includes("Rapid Jab") || key.includes("Pivot Grab"));
 }

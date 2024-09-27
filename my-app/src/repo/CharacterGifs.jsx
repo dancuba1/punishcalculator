@@ -1,13 +1,15 @@
 import { ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../Config/firebase-config";
 import { removeAllParentheses, lowercaseFirstLetter, removeSpecialSubstrings, capitaliseFirstLetter, transformId, invertId } from "../utils/stringManip.js";
+import { getFunctions, httpsCallable } from "firebase/functions";
+
 
 const getGifRef = (char, move) => {
     console.log("MOVE " +removeAllParentheses(removeSpecialSubstrings(move)));
     return(lowercaseFirstLetter(char) + '/' + transformId(char) + ' ' + removeAllParentheses(removeSpecialSubstrings(move))  + '.gif');
 }
 
-
+/*
 export const fetchGifs = async (char, moves, isId) => {
     console.log("in Fetch gifs");
 
@@ -62,4 +64,143 @@ export const fetchGifs = async (char, moves, isId) => {
     }
     return urls;
 }
+    */
 
+
+export const fetchGifs = async (char, moves, isId) => {
+    console.log("in Fetch gifs");
+
+    var urls = []
+    if(Array.isArray(moves)){
+        console.log("Found array");
+        if(isId){
+            urls = await getAllClosestImageUrls(char, moves);
+            /*
+            for (const move of moves){
+                try{
+                    const url = await getClosestImageUrl(char, move);
+                    console.log(`Generated gifRef for ${move}: `, url); 
+                    urls.push(url);
+                }catch(err){
+                    console.error(err, " move: ", move);
+                }
+                
+            }
+            */
+        }else{
+            var moveIds = [];
+            for (const move of moves){
+                const moveId = move.id;
+                moveIds.push(moveId);
+            }
+            urls = await getAllClosestImageUrls(char, moveIds);
+
+            /*
+            for (const move of moves){
+                try{
+                    const url = await getClosestImageUrl(char, move.id);
+                    console.log(`Generated gifRef for ${move.id}: `, url);  // Debugging log
+                    urls.push(url);
+                }catch(err){
+                    console.error(err, " move: ", move.id);
+                }
+              
+            }
+                */
+        }
+        
+        
+       
+
+    }else if(typeof moves === "string"){
+        /*
+        console.log("Found string");
+        const moveRef = getGifRef(char, moves);
+        console.log(moveRef);
+        const gifRef = ref(storage, moveRef);
+        console.log(gifRef);
+        urls =  await getDownloadURL(gifRef);
+        
+        */
+
+        urls = await getClosestImageUrl(char, moves);
+    }else{
+        console.log(typeof(moves));
+
+    }
+    if(!(typeof urls === "string")){
+        for(const url of urls){
+            console.log("url in urls: " ,url);
+        }
+    }
+    
+    return urls;
+}
+
+const getFormattedNames = (char, move) => {
+    console.log("MOVE " +removeAllParentheses(removeSpecialSubstrings(move)));
+    return [(transformId(char)), removeAllParentheses(removeSpecialSubstrings(move))];
+}
+
+const getAllClosestImageUrls = async (characterName, moves) => {
+    console.log("getAllClosestImageURLs moveName : " + moves, "characterName: " + characterName);
+    const capitalChar = capitaliseFirstLetter(characterName);
+    try {
+        //UPDATE fetch URL
+      const response = await fetch('https://findallimages-xdlwx36zpq-uc.a.run.app', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ moves, capitalChar, characterName }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const result = await response.json();
+      const fileNames = result.fileNames;
+      console.log("Filenames: ", fileNames);
+      
+      let urls = [];
+      for(const fileName of fileNames){
+        const url = `https://firebasestorage.googleapis.com/v0/b/punish-calculator.appspot.com/o/${encodeURIComponent(`${fileName}`)}?alt=media`;
+        urls.push(url);
+      }
+      return urls;
+    } catch (error) {
+      console.error('Error retrieving image:', error);
+    }
+}
+
+const getClosestImageUrl = async (characterName, moveName) => {
+    console.log("getClosestImageURL moveName : " + moveName, "characterName: " + characterName);
+    const capitalChar = capitaliseFirstLetter(characterName);
+
+    try {
+      const response = await fetch('https://getbestmoveimage-xdlwx36zpq-uc.a.run.app', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ moveName, capitalChar, characterName }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const result = await response.json();
+      const fileName = result.fileName;
+      console.log("Filename: ", fileName);
+      
+      const url = `https://firebasestorage.googleapis.com/v0/b/punish-calculator.appspot.com/o/${encodeURIComponent(`${fileName}`)}?alt=media`;
+      return url;
+    } catch (error) {
+      console.error('Error retrieving image:', error);
+    }
+  };
+  
+  
+  
