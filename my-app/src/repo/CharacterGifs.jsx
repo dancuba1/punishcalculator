@@ -1,13 +1,18 @@
 
-import { capitaliseFirstLetter } from "../utils/stringManip.js";
+import { capitaliseFirstLetter, removeAllParentheses, removeSpecialSubstrings } from "../utils/stringManip.js";
 
 /*
 const getGifRef = (char, move) => {
     console.log("MOVE " +removeAllParentheses(removeSpecialSubstrings(move)));
     return(lowercaseFirstLetter(char) + '/' + transformId(char) + ' ' + removeAllParentheses(removeSpecialSubstrings(move))  + '.gif');
 }
+*/
 
+const getCompatMove = (move) => {
+    return removeAllParentheses(removeSpecialSubstrings(move));
+}
 /*
+
 export const fetchGifs = async (char, moves, isId) => {
     console.log("in Fetch gifs");
 
@@ -72,7 +77,11 @@ export const fetchGifs = async (char, moves, isId) => {
     if(Array.isArray(moves)){
         console.log("Found array");
         if(isId){
-            urls = await getAllClosestImageUrls(char, moves);
+            var moveIds = [];
+            for (const move of moves){
+                moveIds.push(getCompatMove(moves));
+            }
+            urls = await getAllClosestImageUrls(char, moveIds);
             /*
             for (const move of moves){
                 try{
@@ -89,7 +98,7 @@ export const fetchGifs = async (char, moves, isId) => {
             var moveIds = [];
             for (const move of moves){
                 const moveId = move.id;
-                moveIds.push(moveId);
+                moveIds.push(getCompatMove(moveId));
             }
             urls = await getAllClosestImageUrls(char, moveIds);
 
@@ -121,7 +130,7 @@ export const fetchGifs = async (char, moves, isId) => {
         
         */
 
-        urls = await getClosestImageUrl(char, moves);
+        urls = await getClosestImageUrl(char, getCompatMove(moves));
     }else{
         console.log(typeof(moves));
 
