@@ -18,12 +18,15 @@ export function removeAllParentheses(str) {
 export function removeSpecialSubstrings(str) {
     // Define an array of substrings to remove
     const substringsToRemove = ["Neutral B ", "Side B ", "Up B ", "Down B "];
-    console.log(str);
+    console.log(" REMOVE SPECIAL SUBSTRING:  ",  typeof(str), str);
+
     // Use a loop to remove each substring
     substringsToRemove.forEach(substring => {
         // Replace all occurrences of the substring with an empty string using replace and a global regex
         const regex = new RegExp(substring, 'g');
-        str = str.replace(regex, '');
+        if(typeof(str) == "string"){
+            str = str.replace(regex, '');
+        }
     });
 
     // Replace "end" (case-insensitive) with "Finisher"

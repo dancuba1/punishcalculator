@@ -56,6 +56,18 @@ exports.getBestMoveImage = functions.https.onRequest(async (req, res) => {
           bestMatch = file;
         }
       }
+      if ((file.name).includes(".png")) {
+        const fileName = file.name.split("/").pop().toLowerCase()
+            .replace(" ", "");
+        const matchDistance = distance(fileName.replace(".png", ""), tName);
+
+        console.log(` ${fileName} vs ${tName}, Distance:${matchDistance}`);
+
+        if (matchDistance < bestDistance) {
+          bestDistance = matchDistance;
+          bestMatch = file;
+        }
+      }
     });
 
     if (!bestMatch) {

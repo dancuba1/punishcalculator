@@ -1,222 +1,115 @@
 import './App.css';
-import { useState, useEffect} from "react";
-
-import { punishCalculation, getFastestPCharMoves } from "./utils/Algorithm.js";
-import { getAllCharacterNames, getCharacterData, getCharacterMove } from "./repo/FirebaseRepository.js";
+import { useState} from "react";
+import { handlePunishCalc } from './utils/Algorithm.js';
 import Dropdown from "./components/Dropdown.jsx";
 import { useJumpSquat } from './hooks/useJumpSquat.js';
+import { useAllCharNames } from './hooks/useAllCharNames.js';
 import CalcOutput from "./components/CalcOutput.jsx";
-
-import { invertId, invertIds, transformIds } from './utils/stringManip.js';
 import { AppHeader } from './components/AppHeader.jsx';
+import { useSelectedMove } from './hooks/useSelectedMove.js';
+import { useCharacterMoves } from './hooks/useCharacterMoves.jsx';
+import { useFetchPCharMoves } from './hooks/useFetchPCharMoves.jsx';
 
 
 
+// A stands for Attacking (character), so the character that is using the initial move
+
+// P stands for Punishing (character), so the character that is punishing A's move
 
 
 function App() {
 
-  
+  //sets a mutable jumpsquat state for throughout the code, that varies whether pchar is kazuya or not
   const jumpSquat = useJumpSquat();
 
-  //characters and all their moves
-  const [characterList, setCharacterList] = useState([]);
-
-  //characters names
-  const [characterSelect, setCharacterSelect] = useState([]);
-  //move names
-  const [moveIds, setMoveIds] = useState([]);
-
-  //all moves of character
-  const [charMoves, setCharMoves] = useState([]);
-
-
-  //selected move data of attacking character
-  const [moveSelect, setMoveSelect] = useState([]);
-  //all moves of punishing character                        //BOTH USED FOR ALGO
-  const [pCharMoves, setPCharMoves] = useState([]);
   
+  //characters names
+  const [allCharacterNames, setAllCharacterNames] = useState([]);
+  //GETs ALL CHARACTER NAMES, runs once
+  useAllCharNames(setAllCharacterNames);
 
-
-  //selected move id
-  const [selectedMoveId, setSelectedMoveId] = useState("Select Move");
-  //selected char id  
-  const [selectedChar, setSelectedChar] = useState("Select Character");               //USED FOR DROPDOWN SELECTIONS
+  //selected achar id  
+  const [dropdownACharID, setDropdownACharID] = useState("Select Character");              
+  //selected amove id
+  const [dropdownAMoveID, setDropdownAMoveID] = useState("Select Move");                 //USED FOR DROPDOWN SELECTIONS
   //selected pchar id
-  const [selectedPChar, setSelectedPChar] = useState("Select Punishing Character");
+  const [dropdownPCharID, setDropdownPCharID] = useState("Select Punishing Character");
+
+  
+  //acharmove names
+  const [aMoveIds, setAMoveIds] = useState([]);
+  //Gives moves to dropdown, based on character selected
+  useCharacterMoves(dropdownACharID, setAMoveIds);
+
+
+
+  //all moves of punishing character                        
+  const [pCharMoves, setPCharMoves] = useState([]);
+  //set pcharacter data to the character selected
+  useFetchPCharMoves(dropdownPCharID, setPCharMoves);
+
+
 
 
   //boolean to detect when move selection should be reset to "Select Move"
   const [resetMove, setResetMove] = useState(false);
-
-
-  //GET ALL CHARACTER NAMES, runs once
-  useEffect(() => {
-    const displayCharacterInfo = async () => {
-      try {
-        //const characters = await getAllCharactersData();
-        //setCharacterList(characters);
-        const charNames = await getAllCharacterNames()
-        setCharacterSelect(transformIds(charNames));
-        console.log(characterSelect);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    displayCharacterInfo();
-  }, []);
-
-
-
-  useEffect(() => {
-      console.log("Not Character Select");
-      const handleCharacterMoves = async () => {
-        try {
-          const characterWithMoves = await getCharacterData(invertId(selectedChar));
-          console.log(characterWithMoves);
+  // sets the selected move to it's own object && wheether the move 
+  const { moveSelect } = useSelectedMove(
+    dropdownAMoveID,
+    dropdownACharID,
+    aMoveIds,
+    resetMove,
+    setResetMove
+  );
   
-          // Set move IDs with new array, not by spreading existing state
-          setMoveIds(characterWithMoves[0].moves.map((move) => move.id));
-        } catch (error) {
-          console.error("Error fetching character moves:", error);
-        }
-      };
-      handleCharacterMoves();
-    
-  }, [selectedChar])
 
   
-  useEffect(() => {
-    if(characterList.length > 0){
-      const getCharMoves = (charName) => {
-        const character = characterList.find((char) => char.name === charName);
-        return character ? character.moves : [];
-      };
-  
-      if (selectedChar !== "Select Character") {
-        if(resetMove){
-          setSelectedMoveId("Select Move");
-          setResetMove(false);
-        }
-        const moves = getCharMoves(invertIds(selectedChar));
-        setCharMoves(moves);
-        setMoveIds(charMoves.map(move => move.id));
-      }
-    }
-    
-  }, [selectedChar, charMoves]);
 
-  //set pcharacter data to the character selected
-  useEffect(() => {
-    const fetchPCharMoves = async () => {
-        if (selectedPChar !== "Select Punishing Character") {
-            console.log("in selectedPChar " + selectedPChar);
-            
-            // Await the result of the asynchronous function
-            const moves = await getPCharMoves(selectedPChar);
-            
-            // Update the state with the fetched moves
-            setPCharMoves(moves);
-            
-            console.log("punishing character moves:", moves);
-        }
-    };
-
-      fetchPCharMoves();  
-  }, [selectedPChar]);
-
-  const getPCharMoves = async (charName) => {
-      const character = await getCharacterData(invertId(charName));
-      console.log("in getPCharMoves", character);
-      
-      // Return the moves or an empty array if not found
-      return character ? character[0].moves : [];
-  };
-
-
-  // sets the selected move to it's own object
-  useEffect(() => {
-    if (selectedMoveId !== "Select Move" && moveIds.length > 0) {
-      const fetchMove = async () => {
-        const move = await getCharacterMove(selectedChar, selectedMoveId);
-        setResetMove(true);
-        setMoveSelect(move);
-        console.log(move);
-      };
-      fetchMove(); // Fetch the move data and handle state updates
-    }
-  }, [selectedMoveId]); 
-
- 
-
-  
-  const [punishingMoves, setPunishingMoves] = useState([]);
+   
   const [previousAChar, setPreviousAChar] = useState("");
-  const [previousAMove, setPreviousAMove] = useState("");
+  const [previousAMove, setPreviousAMove] = useState("");     //detects whether a recalculation is needed
   const [previousPChar, setPreviousPChar] = useState("");
-  const calculatePunish = async () => {
-    setShowSpinner(true);
-    if(selectedPChar === "Kazuya"){
-      jumpSquat.current = 7;
-    }else{
-      jumpSquat.current = 3;
-    }
-    console.log("calculatePunish jumpsquat" + jumpSquat.current); 
 
-    try{
-      if (previousAChar === selectedChar && previousAMove === selectedMoveId && previousPChar === selectedPChar) {
-        // No need to recalculate since the inputs are the same
-        console.log("No need to recalculate, same inputs as before.");
-        return;
-      }
+  //Moves that can be used to punish
+  const [punishingMoves, setPunishingMoves] = useState([]);
 
-      if(selectedMoveId.includes("Grab")){
-        //handleGrabInput();
-        return;
-      }
-      const [newPunishingMoves, urls, url] = await punishCalculation(
-        moveSelect,
-        pCharMoves,
-        selectedPChar,
-        selectedChar,
-        selectedMoveId,
-        jumpSquat);
-
-      if(newPunishingMoves.length>0){
-        setIsPunishable(true);
-        console.log("nPMoves length " + newPunishingMoves.length);
-        setPunishingMoves(newPunishingMoves);
-        setSSImages(urls);
-        setSingleImage(url);  
-      }else{
-        setIsPunishable(false);
-        const [top3Moves, urls] = await getFastestPCharMoves(pCharMoves, selectedPChar, jumpSquat)
-        setPunishingMoves(top3Moves);
-        setSSImages(urls);
-        setSingleImage(url);
-      }
-      
-
-      setPreviousAChar(selectedChar);
-      setPreviousAMove(selectedMoveId);
-      setPreviousPChar(selectedPChar);
-      setShowSpinner(false);
-      setCalcOutputVisible(true);
-    }catch(err){
-      console.error(err);
-    }
-   
- 
-   
-  };
-
-
+  
   const [isPunishable, setIsPunishable] = useState(true);
+
+  //slideshow images(pcharmoves) and acharmove image
   const [ssImages, setSSImages] = useState([]);
   const [singleImage, setSingleImage] = useState([]);
   
   const [calcOutputVisibile, setCalcOutputVisible] = useState(false);
   const [showSpinner, setShowSpinner]= useState(false);
+
+  const calc = async () => {
+    await handlePunishCalc({
+      //all data used in calc
+      dropdownPCharID,
+      dropdownACharID,
+      dropdownAMoveID,
+      moveSelect,
+      pCharMoves,
+      jumpSquat,
+      previousAChar,
+      previousAMove,
+      previousPChar,
+      //all states to be updated
+      setPreviousAChar,
+      setPreviousAMove,
+      setPreviousPChar,
+      setShowSpinner,
+      setIsPunishable,
+      setPunishingMoves,
+      setSSImages,
+      setSingleImage,
+      setCalcOutputVisible,
+    });
+  };
+
+
+
 
 
   return (
@@ -226,21 +119,21 @@ function App() {
         <div className="dropdownContainer">
             <Dropdown
               className = "selectCharacter"
-              options={characterSelect} 
-              selected={selectedChar} 
-              setSelected={setSelectedChar}
+              options={allCharacterNames} 
+              selected={dropdownACharID} 
+              setSelected={setDropdownACharID}
             />
             <Dropdown
               className = "selectMove"
-              options={moveIds} 
-              selected={selectedMoveId} 
-              setSelected={setSelectedMoveId}
+              options={aMoveIds} 
+              selected={dropdownAMoveID} 
+              setSelected={setDropdownAMoveID}
               />
             <Dropdown
               className = "selectPunishingCharacter"
-              options={characterSelect} 
-              selected={selectedPChar} 
-              setSelected={setSelectedPChar}
+              options={allCharacterNames} 
+              selected={dropdownPCharID} 
+              setSelected={setDropdownPCharID}
             />
         </div>
         { showSpinner &&
@@ -259,7 +152,7 @@ function App() {
         </div>
         }
         <div className='button'>
-          <button className='calcButton' onClick={() => calculatePunish()}>
+          <button className='calcButton' onClick={() => calc()}>
             Calculate
           </button>
         </div>
