@@ -13,8 +13,12 @@ export function useCharacterMoves(dropdownACharID, setMoveIds) {
         console.log(characterWithMoves);
 
         // Update move IDs in state
-        setMoveIds(characterWithMoves[0].moves.map((move) => move.id));
-      } catch (error) {
+        setMoveIds(
+          characterWithMoves[0].moves
+            .filter((move) => !move.id.toLowerCase().includes("grab"))
+            .map((move) => move.id)
+        );
+              } catch (error) {
         console.error("Error fetching character moves:", error);
       }
     };
@@ -22,3 +26,4 @@ export function useCharacterMoves(dropdownACharID, setMoveIds) {
     handleCharacterMoves();
   }, [dropdownACharID, setMoveIds]); // Dependency array
 }
+

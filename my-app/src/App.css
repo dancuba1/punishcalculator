@@ -298,15 +298,6 @@ h4{
 
 
 
-.slideshow-container{
-  align-items: center;
-  display: flex;
-  height:50vh;
-  margin: 0 auto;
-  max-width: 100vh;
-  position: relative;
-}
-
 .charinfo{
   height: fit-content;
   display: flex;
@@ -333,6 +324,18 @@ h4{
 .outputtext{
   padding: 10px;
 }
+
+
+
+.slideshow-container{
+  align-items: center;
+  display: flex;
+  height:50vh;
+  margin: 0 auto;
+  max-width: 100vh;
+  position: relative;
+}
+
 .slide{
   height: 50%;
   opacity: 0;

@@ -2,6 +2,88 @@ import { fetchGifs } from "../repo/CharacterGifs";
 import { invertId } from "./stringManip";
 
 
+//handles the beginnning of the punish calculation
+export const handlePunishCalc = async ({
+  dropdownPCharID,
+  dropdownACharID,
+  dropdownAMoveID,
+  moveSelect,
+  pCharMoves,
+  jumpSquat,
+  previousAChar,
+  previousAMove,
+  previousPChar,
+  setPreviousAChar,
+  setPreviousAMove,
+  setPreviousPChar,
+  setShowSpinner,
+  setIsPunishable,
+  setPunishingMoves,
+  setSSImages,
+  setSingleImage,
+  setCalcOutputVisible,
+}) => {
+  setShowSpinner(true);
+
+  // Set jumpSquat based on the punishing character
+  jumpSquat.current = dropdownPCharID === "Kazuya" ? 7 : 3;
+  console.log("calculatePunish jumpsquat: " + jumpSquat.current);
+
+  try {
+    // Avoid recalculation for the same inputs
+    if (
+      previousAChar === dropdownACharID &&
+      previousAMove === dropdownAMoveID &&
+      previousPChar === dropdownPCharID
+    ) {
+      console.log("No need to recalculate, same inputs as before.");
+      return;
+    }
+
+  
+    // Perform punishment calculation
+    const [newPunishingMoves, urls, url] = await punishCalculation(
+      moveSelect,
+      pCharMoves,
+      dropdownPCharID,
+      dropdownACharID,
+      dropdownAMoveID,
+      jumpSquat
+    );
+
+    if (newPunishingMoves.length > 0) {
+      setIsPunishable(true);
+      console.log("New Punishing Moves Length: " + newPunishingMoves.length);
+
+      console.log("newPunishingMoves " + newPunishingMoves);
+      setPunishingMoves(newPunishingMoves);
+      setSSImages(urls);
+      setSingleImage(url);
+    } else {
+      setIsPunishable(false);
+      const [top3Moves, fastUrls] = await getFastestPCharMoves(
+        pCharMoves,
+        dropdownPCharID,
+        jumpSquat
+      );
+      setPunishingMoves(top3Moves);
+      setSSImages(fastUrls);
+      setSingleImage(url);
+    }
+
+    // Update the previous character and move selections
+    setPreviousAChar(dropdownACharID);
+    setPreviousAMove(dropdownAMoveID);
+    setPreviousPChar(dropdownPCharID);
+    setCalcOutputVisible(true);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setShowSpinner(false);
+  }
+};
+
+
 //retreives a useable start up value
 export function processStartUpValue(value) {
   if (typeof value === 'string') {
@@ -51,7 +133,6 @@ export function setStartUpCalc(move, initStartUp, jumpSquat){
       move.startup = initStartUp + jumpSquat.current;
       return move;
     }else{
-      console.log("MuST SHIELD DROP");
       move.startup = initStartUp + shieldDropLag;
       return move;
     }
@@ -71,7 +152,7 @@ export const getStartUpMap = async (pCharMoves, selectedPChar, jumpSquat) =>{
     console.log(move.startup);
     const startUp = await processStartUpValue(move.startup);
     if(startUp !== null) {
-      console.log("start up not null" + startUp);
+      console.log("start up not null " + startUp);
       startUpMap.set(move.id, setStartUpCalc(move, startUp, jumpSquat));
       console.log(" startUPmap object " + startUpMap.get(move.id));
     }else{
@@ -80,88 +161,8 @@ export const getStartUpMap = async (pCharMoves, selectedPChar, jumpSquat) =>{
   }
   return startUpMap;
 }
- 
-export const handlePunishCalc = async ({
-  dropdownPCharID,
-  dropdownACharID,
-  dropdownAMoveID,
-  moveSelect,
-  pCharMoves,
-  jumpSquat,
-  previousAChar,
-  previousAMove,
-  previousPChar,
-  setPreviousAChar,
-  setPreviousAMove,
-  setPreviousPChar,
-  setShowSpinner,
-  setIsPunishable,
-  setPunishingMoves,
-  setSSImages,
-  setSingleImage,
-  setCalcOutputVisible,
-}) => {
-  setShowSpinner(true);
 
-  // Set jumpSquat based on the punishing character
-  jumpSquat.current = dropdownPCharID === "Kazuya" ? 7 : 3;
-  console.log("calculatePunish jumpsquat: " + jumpSquat.current);
 
-  try {
-    // Avoid recalculation for the same inputs
-    if (
-      previousAChar === dropdownACharID &&
-      previousAMove === dropdownAMoveID &&
-      previousPChar === dropdownPCharID
-    ) {
-      console.log("No need to recalculate, same inputs as before.");
-      return;
-    }
-
-    if (dropdownAMoveID.includes("Grab")) {
-      console.log("Handle Grab Input here if necessary.");
-      return;
-    }
-
-    // Perform punishment calculation
-    const [newPunishingMoves, urls, url] = await punishCalculation(
-      moveSelect,
-      pCharMoves,
-      dropdownPCharID,
-      dropdownACharID,
-      dropdownAMoveID,
-      jumpSquat
-    );
-
-    if (newPunishingMoves.length > 0) {
-      setIsPunishable(true);
-      console.log("New Punishing Moves Length: " + newPunishingMoves.length);
-      setPunishingMoves(newPunishingMoves);
-      setSSImages(urls);
-      setSingleImage(url);
-    } else {
-      setIsPunishable(false);
-      const [top3Moves, fastUrls] = await getFastestPCharMoves(
-        pCharMoves,
-        dropdownPCharID,
-        jumpSquat
-      );
-      setPunishingMoves(top3Moves);
-      setSSImages(fastUrls);
-      setSingleImage(url);
-    }
-
-    // Update the previous character and move selections
-    setPreviousAChar(dropdownACharID);
-    setPreviousAMove(dropdownAMoveID);
-    setPreviousPChar(dropdownPCharID);
-    setCalcOutputVisible(true);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setShowSpinner(false);
-  }
-};
 
 export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, selectedChar, selectedMoveId, jumpSquat) => {
   console.log("moveSelect " + moveSelect);
@@ -180,13 +181,9 @@ export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, s
      //map for moves' id to total start up when calculated.
       
       
-      if((selectedMoveId).includes("Grab")){
-        const url = await handleACharFetchGifs(selectedChar, selectedMoveId);
-        const [newPunishingMoves, urls] = await getFastestPCharMoves(pCharMoves, selectedPChar, jumpSquat);
-        return [newPunishingMoves, urls, url];
-      }
+    
 
-      if((moveSelect.advantage === "--")){
+      if((moveSelect.advantage === "--" || moveSelect.advantage === "**")){
         const url = await handleACharFetchGifs(selectedChar, selectedMoveId);
         const [newPunishingMoves, urls] = await getFastestPCharMoves(pCharMoves, selectedPChar, jumpSquat);
         return [newPunishingMoves, urls, url];
@@ -215,8 +212,8 @@ export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, s
   }
 }
 
-
-export const getFastestPCharMoves = async (pCharMoves, selectedPChar, jumpSquat) => {
+// method for retrieving the 3 fastest moves, used when not true punishable
+export const  getFastestPCharMoves = async (pCharMoves, selectedPChar, jumpSquat) => {
   console.log("in getFastestPCharMoves");
   // Get the map of all moves and their startup times
   const startUpMap = await getStartUpMap(pCharMoves, invertId(selectedPChar), jumpSquat);

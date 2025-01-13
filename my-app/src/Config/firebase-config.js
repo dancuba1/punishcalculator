@@ -9,12 +9,12 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDTmR2vwcKrUQ2VzOayJK7zfI7T6mysYeQ",
-  authDomain: "punish-calculator.firebaseapp.com",
-  projectId: "punish-calculator",
-  storageBucket: "punish-calculator.appspot.com",
-  messagingSenderId: "25218283809",
-  appId: "1:25218283809:web:8ceeb7950a405639f0a660"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
