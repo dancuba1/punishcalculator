@@ -76,8 +76,8 @@ export const fetchGifs = async (char, moves, isId) => {
     var urls = []
     if(Array.isArray(moves)){
         console.log("Found array");
+        var moveIds = [];
         if(isId){
-            var moveIds = [];
             for (const move of moves){
                 console.log("Type of Move in fetchGifs:  ", typeof(move));
                 moveIds.push(getCompatMove(move));
@@ -96,7 +96,6 @@ export const fetchGifs = async (char, moves, isId) => {
             }
             */
         }else{
-            var moveIds = [];
             for (const move of moves){
                 const moveId = move.id;
                 moveIds.push(getCompatMove(moveId));
