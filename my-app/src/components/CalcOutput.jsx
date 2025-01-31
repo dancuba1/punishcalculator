@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import CharacterInfo, { MoveInfo } from "./MoveInfo";
+import { MoveInfo } from "./MoveInfo";
 import OutputInfo from "./OutputInfo";
 import Slideshow from "./Slideshow";
 export function CalcOutput({singleImage, ssImages, aMove, pMoves, jumpSquat, isPunishable}) {
