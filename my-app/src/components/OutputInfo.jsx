@@ -12,20 +12,16 @@ export function OutputInfo({ aMove, pMove, jumpSquat }) {
             return;
         }
 
-        const initStartUp = pMove.startup;
+        const initStartUp = pMove.startup; 
+        console.log("initStartUp", initStartUp);
         const newPMove = setStartUpCalc(pMove, initStartUp, jumpSquat); // Already the full object
         setUpdatedPMove(newPMove);
-        console.log("Updated move:", newPMove); // Check the whole updated object
-
+        console.log("Updated move startup:", updatedPMove.startup); // Check the whole updated object
+        console.log("amove advantage: ", aMove.advantage);
+        const calculatedFrameAdvantage = -(processStartUpValue(aMove.advantage) + pMove.startup);
+        setFrameAdvantage(calculatedFrameAdvantage);
     }, [aMove, pMove, jumpSquat]);
 
-    // Calculate new frame advantage when updatedPMove changes
-    useEffect(() => {
-        if (!aMove || !updatedPMove) return;
-        console.log("Updated pMove" + updatedPMove.startup);
-        const calculatedFrameAdvantage = -(processStartUpValue(aMove.advantage) + updatedPMove.startup);
-        setFrameAdvantage(calculatedFrameAdvantage);
-    }, [aMove, updatedPMove]);
 
     // Get output messages for the move
     const [moveDetail, perfectLanding, noTruePunishMessage] = getDialogue(aMove);
