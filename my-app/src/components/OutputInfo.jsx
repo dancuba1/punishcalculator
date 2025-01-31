@@ -18,7 +18,7 @@ export function OutputInfo({ aMove, pMove, jumpSquat }) {
         } catch (err) {
             console.error("An error occurred:", err.message);
         }
-    },[]); // Re-run effect only when aMove, pMove, or jumpSquat change
+    },[aMove, jumpSquat, pMove]); // Re-run effect only when aMove, pMove, or jumpSquat change
 
     //calculate new frame advantage, when a new pMove is loaded
     useEffect(() => {
@@ -27,7 +27,7 @@ export function OutputInfo({ aMove, pMove, jumpSquat }) {
             setFrameAdvantage(calculatedFrameAdvantage);
         }
       
-    }, [pMove])
+    }, [pMove, aMove])
   
 
     // Prepare the output based on whether aMove is an aerial move or not
