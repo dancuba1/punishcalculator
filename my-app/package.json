@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@firebase/firestore": "^4.7.6",
+    "@firebase/storage": "^0.13.5",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -11,7 +13,7 @@
     "buffer": "^6.0.3",
     "eslint": "^8.57.1",
     "fastest-levenshtein": "^1.0.16",
-    "firebase": "^10.12.3",
+    "firebase": "^11.2.0",
     "fs-web": "^1.0.1",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
