@@ -21,7 +21,6 @@ function App() {
 
   //sets a mutable jumpsquat state for throughout the code, that varies whether pchar is kazuya or not
   const jumpSquat = useJumpSquat();
-
   
   //characters names
   const [allCharacterNames, setAllCharacterNames] = useState([]);
