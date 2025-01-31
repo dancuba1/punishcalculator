@@ -16,7 +16,6 @@ export function OutputInfo({ aMove, pMove, jumpSquat }) {
         console.log("initStartUp", initStartUp);
         const newPMove = setStartUpCalc(pMove, initStartUp, jumpSquat); // Already the full object
         setUpdatedPMove(newPMove);
-        console.log("Updated move startup:", updatedPMove.startup); // Check the whole updated object
         console.log("amove advantage: ", aMove.advantage);
         const calculatedFrameAdvantage = -(processStartUpValue(aMove.advantage) + pMove.startup);
         setFrameAdvantage(calculatedFrameAdvantage);
