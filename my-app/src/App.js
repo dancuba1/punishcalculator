@@ -22,7 +22,7 @@ function App() {
   //sets a mutable jumpsquat state for throughout the code, that varies whether pchar is kazuya or not
   const jumpSquat = useJumpSquat();
 
-  
+  console.log(process.env.REACT_APP_FIREBASE_API_KEY);
   //characters names
   const [allCharacterNames, setAllCharacterNames] = useState([]);
   //GETs ALL CHARACTER NAMES, runs once
