@@ -108,36 +108,40 @@ export function processStartUpValue(value) {
 
 
 //adds start up frames that are dependant on move type
-export function setStartUpCalc(move, initStartUp, jumpSquat){
+export function setStartUpCalc(move, initStartUp, jumpSquat) {
   console.log(move);
+
   const shieldDropLag = 11;
   const grabLag = 4;
   console.log("current js" + jumpSquat.current);
-  try{
-    if(move.isUpB || move.isUpSmash){
-      move.startup = initStartUp;
-      return move;
-    }else if(move.isAerial){
+
+  try {
+    let newStartup = initStartUp; // Start from the original value
+
+    if (move.isUpB || move.isUpSmash) {
+      newStartup = initStartUp;
+    } else if (move.isAerial) {
       console.log("In isAerial JumpSquat: " + jumpSquat.current);
-      move.startup = initStartUp + jumpSquat.current;
-      return move
-    }else if( (move.id).includes("Grab")){
-      if((move.id).includes("Dash Grab")){
-        move.startup = initStartUp + shieldDropLag;
-        return move;
-      }else{
-        move.startup = initStartUp + grabLag;
-        return move;
+      newStartup = initStartUp + jumpSquat.current;
+    } else if ((move.id).includes("Grab")) {
+      if ((move.id).includes("Dash Grab")) {
+        newStartup = initStartUp + shieldDropLag;
+      } else {
+        newStartup = initStartUp + grabLag;
       }
-    }else if((move.id).includes("Aerial")){
-      move.startup = initStartUp + jumpSquat.current;
-      return move;
-    }else{
-      move.startup = initStartUp + shieldDropLag;
-      return move;
+    } else if ((move.id).includes("Aerial")) {
+      newStartup = initStartUp + jumpSquat.current;
+    } else {
+      newStartup = initStartUp + shieldDropLag;
     }
-  }catch(err){
-    console.log(err)
+
+    // Create a new object to avoid modifying the original move
+    return {
+      ...move,
+      startup: newStartup,
+    };
+  } catch (err) {
+    console.log(err);
     return;
   }
 }

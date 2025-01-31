@@ -3,36 +3,36 @@ import { processStartUpValue, setStartUpCalc } from "../utils/Algorithm.js";
 
 export function OutputInfo({ aMove, pMove, jumpSquat }) {
     const [frameAdvantage, setFrameAdvantage] = useState(0);
+    const [updatedPMove, setUpdatedPMove] = useState(pMove);
 
+    // Update pMove when dependencies change
     useEffect(() => {
-        try {
-            // Ensure aMove and pMove exist and have the required properties before processing
-            if (!aMove || !pMove) {
-                throw new Error("Move data is missing");
-            }
-
-            const initStartUp = pMove.startup;
-            const newPMove = setStartUpCalc(pMove, initStartUp, jumpSquat);
-            console.log("newPMove startup " + newPMove.startup);
-            // Calculate the frame advantage and update state
-        } catch (err) {
-            console.error("An error occurred:", err.message);
+        if (!aMove || !pMove) {
+            console.warn("Move data is missing");
+            return;
         }
-    },[aMove, jumpSquat, pMove]); // Re-run effect only when aMove, pMove, or jumpSquat change
 
-    //calculate new frame advantage, when a new pMove is loaded
+        const initStartUp = pMove.startup;
+        const newPMove = setStartUpCalc(pMove, initStartUp, jumpSquat); // Already the full object
+        setUpdatedPMove(newPMove);
+        console.log("Updated move:", newPMove); // Check the whole updated object
+
+    }, [aMove, pMove, jumpSquat]);
+
+    // Calculate new frame advantage when updatedPMove changes
     useEffect(() => {
-        if(pMove!= null){
-            const calculatedFrameAdvantage = -(processStartUpValue(aMove.advantage) + pMove.startup);
-            setFrameAdvantage(calculatedFrameAdvantage);
-        }
-      
-    }, [pMove, aMove])
+        if (!aMove || !updatedPMove) return;
+        console.log("Updated pMove" + updatedPMove.startup);
+        const calculatedFrameAdvantage = -(processStartUpValue(aMove.advantage) + updatedPMove.startup);
+        setFrameAdvantage(calculatedFrameAdvantage);
+    }, [aMove, updatedPMove]);
+
+    // Get output messages for the move
+    const [moveDetail, perfectLanding, noTruePunishMessage] = getDialogue(aMove);
   
 
     // Prepare the output based on whether aMove is an aerial move or not
     
-    const [moveDetail, perfectLanding, noTruePunishMessage] = getDialogue(aMove);
    
     //Returns a message for if a move is unpunishable
     if(pMove==="Unpunishable"){

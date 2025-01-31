@@ -80,6 +80,8 @@ export const fetchGifs = async (char, moves, isId) => {
         if(isId){
             for (const move of moves){
                 console.log("Type of Move in fetchGifs:  ", typeof(move));
+                console.log("Move in fetchGifs:  ", move);
+
                 moveIds.push(getCompatMove(move));
             }
             urls = await getAllClosestImageUrls(char, moveIds);
@@ -97,6 +99,7 @@ export const fetchGifs = async (char, moves, isId) => {
             */
         }else{
             for (const move of moves){
+                console.log("Move in fetchGifs:  ", move);
                 const moveId = move.id;
                 moveIds.push(getCompatMove(moveId));
             }
