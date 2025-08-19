@@ -57,7 +57,7 @@ export const getCharacterMove = async (characterName, move) => {
 };
 
 export const getAllCharacterNames = async () => {
-  const charactersCollectionRef = collection(db, "characters");
+  const charactersCollectionRef = await collection(db, "characters");
   
   try {
     // Fetch the main collection

@@ -3,12 +3,13 @@ import React from "react";
 export function MoveInfo({ currentMove, isPMove }){
     if(isPMove){
         try{
-            const startUp = currentMove.startup;
-            const baseDamage = currentMove.baseDamage;
+       
+            console.log("Startup: " + currentMove.startup);
             return(
                 <div className="moveinfo">
-                    <h3 className="startupinfo">Startup: {startUp} Frames </h3>
-                    <h4 className="activeinfo">Base Damage: {baseDamage}</h4>
+                    <h2 className="movename">{currentMove.id}</h2> 
+                    <h3 className="startupinfo">Startup: {currentMove.startup}F</h3>
+                    <h4 className="activeinfo">Base Damage: {currentMove.baseDamage}</h4>
                 </div>
             
             );
@@ -22,13 +23,14 @@ export function MoveInfo({ currentMove, isPMove }){
         }
         
     }else{
-        try{
+        try{    
         const advantage = currentMove.advantage;
         const endlag = currentMove.endLag;
         return(
             <div className="moveinfo">
+                <h2 className="movename">{currentMove.id}</h2> 
                 <h3 className="advantageinfo">On Shield: {advantage}</h3>
-                <h4 className="endlaginfo">End Lag: {endlag} Frames</h4>
+                <h4 className="endlaginfo">End Lag: {endlag}F</h4>
             </div>
         )
         }catch(err){

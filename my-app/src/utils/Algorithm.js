@@ -110,32 +110,47 @@ export function processStartUpValue(value) {
 //adds start up frames that are dependant on move type
 export function setStartUpCalc(move, initStartUp, jumpSquat) {
   console.log(move);
+  console.log("current js: " + jumpSquat.current);
 
   const shieldDropLag = 11;
   const grabLag = 4;
-  console.log("current js" + jumpSquat.current);
 
   try {
-    let newStartup = initStartUp; // Start from the original value
+    let newStartup = initStartUp;
 
-    if (move.isUpB || move.isUpSmash) {
-      newStartup = initStartUp;
-    } else if (move.isAerial) {
-      console.log("In isAerial JumpSquat: " + jumpSquat.current);
-      newStartup = initStartUp + jumpSquat.current;
-    } else if ((move.id).includes("Grab")) {
-      if ((move.id).includes("Dash Grab")) {
-        newStartup = initStartUp + shieldDropLag;
-      } else {
-        newStartup = initStartUp + grabLag;
-      }
-    } else if ((move.id).includes("Aerial")) {
-      newStartup = initStartUp + jumpSquat.current;
-    } else {
-      newStartup = initStartUp + shieldDropLag;
+    switch (true) {
+
+      //Stops using aerial up b as never an optimal punish over normal up b
+      case move.id.includes("B, Aerial") || move.id.includes("B, Air"):
+        newStartup = 9999;
+        break;
+
+      case move.isUpB || move.isUpSmash:
+        // No change to startup
+        break;
+     
+      case move.isAerial:
+        console.log("In isAerial JumpSquat: " + jumpSquat.current);
+        newStartup += jumpSquat.current;
+        break;
+
+      case move.id.includes("Dash Grab"):
+        newStartup += shieldDropLag;
+        break;
+
+      case move.id.includes("Grab"):
+        newStartup += grabLag;
+        break;
+
+      case move.id.includes("Aerial"):
+        newStartup += jumpSquat.current;
+        break;
+
+      default:
+        newStartup += shieldDropLag;
+        break;
     }
 
-    // Create a new object to avoid modifying the original move
     return {
       ...move,
       startup: newStartup,
@@ -145,6 +160,7 @@ export function setStartUpCalc(move, initStartUp, jumpSquat) {
     return;
   }
 }
+
 
 //greater function for getting all start ups for a character
 export const getStartUpMap = async (pCharMoves, selectedPChar, jumpSquat) =>{
@@ -215,29 +231,32 @@ export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, s
 
   }
 }
-
-// method for retrieving the 3 fastest moves, used when not true punishable
-export const  getFastestPCharMoves = async (pCharMoves, selectedPChar, jumpSquat) => {
+export const getFastestPCharMoves = async (pCharMoves, selectedPChar, jumpSquat) => {
   console.log("in getFastestPCharMoves");
+
   // Get the map of all moves and their startup times
   const startUpMap = await getStartUpMap(pCharMoves, invertId(selectedPChar), jumpSquat);
-  
+
   // Convert the Map to an array of entries ([moveId, moveObject])
   const startUpArray = Array.from(startUpMap.entries());
 
-  // Sort the array based on the 'startup' value of the move objects (ascending order)
+  // Sort the array based on the 'startup' value (ascending)
   const sortedStartUpArray = startUpArray.sort(([, moveA], [, moveB]) => moveA.startup - moveB.startup);
 
-  // Get the top 3 fastest moves
-  const top3Moves = sortedStartUpArray.slice(0, 3);
+  // Get the top 3 fastest moves (still as [moveId, moveObject])
+  const top3MovesEntries = sortedStartUpArray.slice(0, 3);
 
-  // Extract and return the move IDs of the top 3 fastest moves
-  const top3MoveIds = top3Moves.map(([moveId]) => moveId);
+  // Extract just the move objects
+  const top3MoveObjects = top3MovesEntries.map(([, moveObj]) => moveObj);
+
+  // Optionally fetch gifs for these moves using their IDs
+  const top3MoveIds = top3MovesEntries.map(([moveId]) => moveId);
   const urls = await fetchGifs(invertId(selectedPChar), top3MoveIds, true);
 
-  console.log(top3MoveIds);
-  return [top3MoveIds, urls];
+  console.log(top3MoveObjects);
+  return [top3MoveObjects, urls];
 };
+
 
 async function handlePCharFetchGifs(moveSelect, startUpMap, selectedPChar) {
   var urls = []
