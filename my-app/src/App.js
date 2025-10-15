@@ -81,9 +81,10 @@ function App() {
   const [singleImage, setSingleImage] = useState([]);
   
   const [calcOutputVisibile, setCalcOutputVisible] = useState(false);
-  const [showSpinner, setShowSpinner]= useState(false);
+  const [loading, setLoading]= useState(false);
 
   const calc = async () => {
+    setCalcOutputVisible(true);
     await handlePunishCalc({
       //all data used in calc
       dropdownPCharID,
@@ -99,7 +100,7 @@ function App() {
       setPreviousAChar,
       setPreviousAMove,
       setPreviousPChar,
-      setShowSpinner,
+      setLoading,
       setIsPunishable,
       setPunishingMoves,
       setSSImages,
@@ -114,6 +115,7 @@ function App() {
 
   return (
     <div className="App">
+      <div className="App-bg"/>
       <div className='content-container'>
         <AppHeader/>
         <div className="dropdownContainer">
@@ -136,9 +138,11 @@ function App() {
               setSelected={setDropdownPCharID}
             />
         </div>
-        { showSpinner &&
-        <img src='./loading-spinner.svg' alt='spinner'/>
-        }
+         <div className='button'>
+          <button className='calcButton' onClick={() => calc()}>
+            Calculate
+          </button>
+        </div>
         { calcOutputVisibile &&
         <div className="calcOutput">
           <CalcOutput
@@ -148,14 +152,11 @@ function App() {
             pMoves={punishingMoves}
             jumpSquat={jumpSquat}
             isPunishable={isPunishable}
+            loading={loading}
             />
         </div>
         }
-        <div className='button'>
-          <button className='calcButton' onClick={() => calc()}>
-            Calculate
-          </button>
-        </div>
+       
       </div>
      
     </div>

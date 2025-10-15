@@ -16,14 +16,13 @@ export const handlePunishCalc = async ({
   setPreviousAChar,
   setPreviousAMove,
   setPreviousPChar,
-  setShowSpinner,
+  setLoading,
   setIsPunishable,
   setPunishingMoves,
   setSSImages,
   setSingleImage,
   setCalcOutputVisible,
 }) => {
-  setShowSpinner(true);
 
   // Set jumpSquat based on the punishing character
   jumpSquat.current = dropdownPCharID === "Kazuya" ? 7 : 3;
@@ -39,6 +38,8 @@ export const handlePunishCalc = async ({
       console.log("No need to recalculate, same inputs as before.");
       return;
     }
+
+    setLoading(true);
 
   
     // Perform punishment calculation
@@ -79,7 +80,7 @@ export const handlePunishCalc = async ({
   } catch (err) {
     console.error(err);
   } finally {
-    setShowSpinner(false);
+    setLoading(false);
   }
 };
 

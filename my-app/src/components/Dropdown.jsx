@@ -13,6 +13,17 @@ function Dropdown({ selected, setSelected, options = [] }) {
       : option.toLowerCase().includes(filter.toLowerCase())
   );
 
+  const [fontSize, setFontSize] = useState(20);
+
+  useEffect(() => {
+    const maxWidth = inputRef.current?.offsetWidth || 200;
+    const textLength = selected.length;
+    // Simple logic: shrink font if text is long
+    let newFontSize = 20;
+    if (textLength > 20) newFontSize = Math.max(12, 20 - (textLength - 20) * 0.5);
+    setFontSize(newFontSize);
+  }, [selected]);
+
   // Focus on the input when dropdown is activated
   useEffect(() => {
     if (isActive && inputRef.current) {
@@ -29,6 +40,7 @@ function Dropdown({ selected, setSelected, options = [] }) {
         <input
           ref={inputRef}
           type="text"
+          style={{ fontSize: `${fontSize}px` }}
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder={selected || "Select an option"}

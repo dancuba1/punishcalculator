@@ -3,12 +3,30 @@
   background-color: #1E1E1E;
   overflow:auto;
   height: 100dvi;
+  min-height: 100vh;
 }
 
 .App::before, .App::after {
   content: "";
   position: fixed;
+  z-index: 1;
   background-color: #BDBBBB; /* Color of the lines */
+}
+
+.App-bg {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('ssb_bckg.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  opacity: 0.075; /* Adjust for desired fade */
+  z-index: 0;
+  pointer-events: none;
 }
 
 .App::before {
@@ -87,11 +105,18 @@ h4{
   z-index: 2;
 }
 
-
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+.skeleton-loader {
+  animation: pulse 1.5s infinite;
+}
 
 .dropdown .dropdown-button {
   /*border-radius: 10px 10px 0px 0px;*/
-  padding: 15px 20px;
+  padding: 15px 40px;
   background: #fff;
   box-shadow: 3px 3px 10px 6px rgba(0, 0, 0, 0.06);
   display: flex;
@@ -143,7 +168,7 @@ h4{
   justify-content: space-around;
   align-items: center;
   position: relative;
-  bottom: 70px;
+  bottom: 20px;
   height: 100vh; /* Full height of the viewport */
   flex-wrap:nowrap;
   width: 100%;
@@ -217,11 +242,12 @@ h4{
 .dropdown-input {
   border: none;          /* Removes the border */
   outline: none;         /* Removes the outline on focus */
-  width: 50%;           /* Ensures the input takes full width */
+  width: 100%;           /* Ensures the input takes full width */
   padding: 5px;          /* Optional: Add some padding */
   background: none;      /* Removes any background color */
   font: inherit;         /* Ensures the font is consistent */
   color: inherit;        /* Inherit color from the parent */
+  
 }
 
 
@@ -232,15 +258,17 @@ h4{
     align-items: center; /* Vertical centering */
 }
 .calcButton{
-  background-color: #7d2082; 
+  background-color: #000000; 
   border: none;
-  margin-top: 25px;
+  margin-top: 5px;
   padding: 15px 32px;
+  margin-bottom: 25px;
   text-align: center;
   color: #fff;
   text-decoration:solid;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
   display: inline-block;
-  z-index: 1;
+  outline: 1px solid #ffffff;   /* 2px thickness, dark color */
   font-size: 24px;
   font-family: 'Koulan', sans-serif;
   cursor: pointer;
