@@ -121,7 +121,7 @@ export function setStartUpCalc(move, initStartUp, jumpSquat) {
     switch (true) {
 
       //Stops using aerial up b as never an optimal punish over normal up b
-      case move.id.includes("B, Aerial") || move.id.includes("B, Air"):
+      case move.id.includes("B, Aerial") || move.id.includes("B, Air") || move.id.includes("Forward Air 2") || move.id.includes("Forward Air 3"):
         newStartup = 9999;
         break;
 
