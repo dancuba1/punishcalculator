@@ -43,14 +43,20 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
         </div>
       );
     }
+    if (!ssImages || !pMoves || !currentPMove) {
+    return null; // wait for data
+  }
     switch (ssImages) {
       case "Shield Breaks":
         return <h3>Shield Breaks so cannot punish out of shield</h3>;
       case "No advantage found":
         return <h3>No advantage has been found</h3>;
       default:
+        console.log("Rendering PMove: ", currentPMove);
         return (
           <>
+            
+            <h2 className="moveName">{currentPMove.id}</h2>
             <div className="sshow pCharSlideShow">
               <Slideshow
                 images={ssImages}
@@ -93,9 +99,17 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
         <div className="rec">
           <div className="movesGifsInfo">
             <div className="charinfo aCharInfo">
+            {loading ? <Skeleton height={180} /> : 
+              <>
+              <h2 className="moveName">{aMove.id}</h2>
+
               <div className="sshow aCharSlideShow">
-                {loading ? <Skeleton height={180} /> : <Slideshow images={singleImage} />}
+                
+                
+                  <Slideshow images={singleImage} />
               </div>
+
+                </>}
               {loading ? <Skeleton height={32} width="80%" /> : <MoveInfo currentMove={aMove} isPMove={false} />}
             </div>
             <div className="charinfo pCharInfo">

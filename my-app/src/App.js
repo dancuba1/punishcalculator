@@ -62,6 +62,14 @@ function App() {
     setResetMove
   );
   
+  const validCalculationInputs = ([dropdownPCharID, dropdownACharID, dropdownAMoveID, moveSelect, pCharMoves]) => {
+    console.log("validCalculationInputs called");
+    console.log(dropdownPCharID, dropdownACharID, dropdownAMoveID, moveSelect, pCharMoves);
+    if (dropdownPCharID === "Select Puninishing Character" || dropdownACharID === "Select Character" || dropdownAMoveID === "Select Move" || moveSelect === null || pCharMoves.length === 0){ 
+      return false;
+    }
+    return true;
+  };
 
 
 
@@ -84,6 +92,10 @@ function App() {
   const [loading, setLoading]= useState(false);
 
   const calc = async () => {
+    if(validCalculationInputs([dropdownPCharID, dropdownACharID, dropdownAMoveID, moveSelect, pCharMoves]) === false){
+      alert("Please select a character and move for both dropdowns");
+      return;
+    }
     setCalcOutputVisible(true);
     await handlePunishCalc({
       //all data used in calc
@@ -121,18 +133,21 @@ function App() {
         <div className="dropdownContainer">
             <Dropdown
               className = "selectCharacter"
+              placeholder='Select Character'
               options={allCharacterNames} 
               selected={dropdownACharID} 
               setSelected={setDropdownACharID}
             />
             <Dropdown
               className = "selectMove"
+              placeholder='Select Move'
               options={aMoveIds} 
               selected={dropdownAMoveID} 
               setSelected={setDropdownAMoveID}
               />
             <Dropdown
               className = "selectPunishingCharacter"
+              placeholder='Select Punishing Character'
               options={allCharacterNames} 
               selected={dropdownPCharID} 
               setSelected={setDropdownPCharID}

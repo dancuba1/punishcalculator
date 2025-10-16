@@ -39,6 +39,8 @@ export const handlePunishCalc = async ({
       return;
     }
 
+    
+
     setLoading(true);
 
   
@@ -83,6 +85,7 @@ export const handlePunishCalc = async ({
     setLoading(false);
   }
 };
+
 
 
 //retreives a useable start up value
