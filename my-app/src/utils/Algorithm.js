@@ -1,5 +1,7 @@
 import { fetchGifs } from "../repo/CharacterGifs";
 import { invertId } from "./stringManip";
+import invalidMoves from "./invalidMoves.json";
+
 
 
 //handles the beginnning of the punish calculation
@@ -116,44 +118,29 @@ export function setStartUpCalc(move, initStartUp, jumpSquat) {
   console.log(move);
   console.log("current js: " + jumpSquat.current);
 
-  const shieldDropLag = 11;
-  const grabLag = 4;
+
 
   try {
     let newStartup = initStartUp;
 
-    switch (true) {
-
-      //Stops using aerial up b as never an optimal punish over normal up b
-      case move.id.includes("B, Aerial") || move.id.includes("B, Air") || move.id.includes("Forward Air 2") || move.id.includes("Forward Air 3"):
+      if (invalidMoves.some(sub => move.id.includes(sub))) {
         newStartup = 9999;
-        break;
-
-      case move.isUpB || move.isUpSmash:
-        // No change to startup
-        break;
-     
-      case move.isAerial:
-        console.log("In isAerial JumpSquat: " + jumpSquat.current);
+      } else if (move.isUpB || move.isUpSmash) {
+        // no change
+      } else if (move.isAerial) {
         newStartup += jumpSquat.current;
-        break;
-
-      case move.id.includes("Dash Grab"):
-        newStartup += shieldDropLag;
-        break;
-
-      case move.id.includes("Grab"):
-        newStartup += grabLag;
-        break;
-
-      case move.id.includes("Aerial"):
+      } else if (move.id.includes("Dash Grab")) {
+        newStartup += 11;
+      } else if (move.id.includes("Grab")) {
+        newStartup += 4;
+      } else if (move.id.includes("Aerial")) {
         newStartup += jumpSquat.current;
-        break;
+      } else {
+        newStartup += 11;
+      }
 
-      default:
-        newStartup += shieldDropLag;
-        break;
-    }
+
+      
 
     return {
       ...move,

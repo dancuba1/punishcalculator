@@ -33,7 +33,7 @@ export function OutputInfo({ aMove, pMove, jumpSquat }) {
     if(pMove==="Unpunishable"){
         return(
             <div className="outputinfo">
-            <h2 className="outputheader">Output</h2>
+            <h2 className="outputheader">OUTPUT</h2>
             <h3 className="outputtext">
                 {aMove?.id} cannot be true punished, however, 3 of the punishing character's fastest moves have been provided, {noTruePunishMessage} 
             </h3>
@@ -43,7 +43,7 @@ export function OutputInfo({ aMove, pMove, jumpSquat }) {
 
     return (
         <div className="outputinfo">
-            <h2 className="outputheader">Output</h2>
+            <h2 className="outputheader">OUTPUT</h2>
             <h3 className="outputtext">
                 {moveDetail} {frameAdvantage} Frames of {pMove?.id}, a{perfectLanding} {aMove?.id} can be punished
             </h3>

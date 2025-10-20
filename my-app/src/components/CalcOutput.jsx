@@ -25,7 +25,8 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
   const [currentPMove, setCurrentPMove] = useState([]);
 
   useEffect(() => {
-    if (aMove !== null && pMoves !== null) {
+    // only set currentPMove when we have a displayed aMove and pMoves are available
+    if (aMove != null && Array.isArray(pMoves) && pMoves.length > 0) {
       setCurrentPMove(pMoves[0]);
     }
   }, [aMove, pMoves]);
@@ -55,15 +56,15 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
         console.log("Rendering PMove: ", currentPMove);
         return (
           <>
-            
-            <h2 className="moveName">{currentPMove.id}</h2>
-            <div className="sshow pCharSlideShow">
-              <Slideshow
-                images={ssImages}
-                onIndexChange={handleIndexChange}
-              />
-            </div>
+              <h2 className="moveName">{currentPMove?.id}</h2>
+              <div className="sshow pCharSlideShow">
+                <Slideshow
+                  images={ssImages}
+                  onIndexChange={handleIndexChange}
+                />
+              </div>
             <MoveInfo currentMove={currentPMove} isPMove={true} />
+          
           </>
         );
     }
@@ -101,7 +102,7 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
             <div className="charinfo aCharInfo">
             {loading ? <Skeleton height={180} /> : 
               <>
-              <h2 className="moveName">{aMove.id}</h2>
+              <h2 className="moveName">{aMove?.id}</h2>
 
               <div className="sshow aCharSlideShow">
                 

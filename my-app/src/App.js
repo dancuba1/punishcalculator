@@ -18,7 +18,6 @@ import { useFetchPCharMoves } from './hooks/useFetchPCharMoves.jsx';
 
 
 function App() {
-
   //sets a mutable jumpsquat state for throughout the code, that varies whether pchar is kazuya or not
   const jumpSquat = useJumpSquat();
 
@@ -91,6 +90,9 @@ function App() {
   const [calcOutputVisibile, setCalcOutputVisible] = useState(false);
   const [loading, setLoading]= useState(false);
 
+  // displayed move — only update this after calc completes
+  const [displayedAMove, setDisplayedAMove] = useState(null);
+
   const calc = async () => {
     if(validCalculationInputs([dropdownPCharID, dropdownACharID, dropdownAMoveID, moveSelect, pCharMoves]) === false){
       alert("Please select a character and move for both dropdowns");
@@ -119,6 +121,8 @@ function App() {
       setSingleImage,
       setCalcOutputVisible,
     });
+    // only update displayed move after calculation finished
+    setDisplayedAMove(moveSelect);
   };
 
 
@@ -163,12 +167,12 @@ function App() {
           <CalcOutput
             ssImages = {ssImages}
             singleImage = {singleImage}
-            aMove = {moveSelect}
+            aMove = {displayedAMove}
             pMoves={punishingMoves}
             jumpSquat={jumpSquat}
             isPunishable={isPunishable}
             loading={loading}
-            />
+          />
         </div>
         }
        

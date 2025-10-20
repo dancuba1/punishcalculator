@@ -311,13 +311,21 @@ h4{
   width: 85%;
 }
 
-.moveName{
-  text-align:center;
-  margin-top: auto;
+.moveOutput{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+.moveName {
+  text-align: center;
+  margin-top: 5vh;
   font-weight: bold;
-  padding: 10px;
-  margin-top: 5px;
-} 
+  text-transform: uppercase;
+  font-size: calc(17px + 1.5vmin);
+         /* allows wrapping before clamp */
+}
+ 
 
 .calcRectangle{
   border-radius: 15px;
@@ -334,9 +342,11 @@ h4{
 
 .r .rec{
   width: 100%;
-  border-radius: 25px;
   display: flex;
   height: auto;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  margin-top: 40px;
   background: linear-gradient(to bottom, #fefefe, #c5c4c4);
 }
 
@@ -359,6 +369,8 @@ h4{
   width: 70%;
   text-align: center;
   margin-top: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.04);
   background-color: white;
 }
 
@@ -381,6 +393,11 @@ h4{
   margin: 0 auto;
   max-width: 100vh;
   position: relative;
+
+  /* ADDED */
+  width: 100%;      /* ensure it fills parent (prevents collapse to 0) */
+  min-width: 0;     /* allow flex children to shrink safely */
+  box-sizing: border-box;
 }
 
 .slide{
@@ -391,15 +408,27 @@ h4{
   width: auto;
   max-width: 70%;
   z-index: 0;
-  border-radius: 15px;
   /* Prevent distortion due to varying heights */
   object-fit: cover;
   background-size: contain;
 }
 
+/* NEW: when rendering a single image, use .slide.single to be in-flow */
+.slide.single {
+  position: relative;
+  opacity: 1;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
+  display: block;
+  left: 0;
+  transform: none;
+}
+
 .slide-center{
-  box-shadow: -2px 5px 33x 6px rgba(0, 0, 0, 0.35);
-  height: 40vh;
+  box-shadow: -2px 5px 33px 6px rgba(0, 0, 0, 0.35);
+  height: fit-content;
   max-height: 80%;
   max-width: 90%;
   width: auto;
@@ -440,6 +469,8 @@ h4{
   padding: 2%;
   text-align: center;
   background-color: white;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.04);
 }
 .movesGifsInfo{
   display: flex;
