@@ -265,7 +265,18 @@ h4{
     justify-content: center; /* Horizontal centering */
     align-items: center; /* Vertical centering */
 }
-.calcButton{
+
+/* Vibration animation */
+@keyframes vibrate {
+  0% { transform: translate(0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(1px, -1px); }
+  60% { transform: translate(-1px, 1px); }
+  80% { transform: translate(1px, -1px); }
+  100% { transform: translate(0); }
+}
+
+.calcButton {
   background-color: #000000; 
   border: none;
   margin-top: 5px;
@@ -273,15 +284,26 @@ h4{
   margin-bottom: 25px;
   text-align: center;
   color: #fff;
-  text-decoration:solid;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  text-decoration: solid;
+  box-shadow: 0 4px 16px rgba(232, 230, 230, 0.15);
   display: inline-block;
-  outline: 1px solid #ffffff;   /* 2px thickness, dark color */
   font-size: 24px;
   font-family: 'Koulan', sans-serif;
   cursor: pointer;
-
+  transition: transform 0.1s, box-shadow 0.2s ease; /* smooth animations */
 }
+
+/* Vibrate on click */
+.calcButton:active {
+  animation: vibrate 0.3s linear;
+}
+
+/* Expand box-shadow on hover */
+.calcButton:hover {
+  box-shadow: 0 8px 24px rgba(232, 230, 230, 0.3);
+  transform: translateY(-2px); /* optional slight lift for effect */
+}
+
 
 .content-container {
   position: absolute;

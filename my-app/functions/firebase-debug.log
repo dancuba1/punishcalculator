@@ -1,0 +1,56 @@
+[debug] [2025-10-22T18:06:13.724Z] ----------------------------------------------------------------------
+[debug] [2025-10-22T18:06:13.726Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions:findAllImages
+[debug] [2025-10-22T18:06:13.726Z] CLI Version:   13.18.0
+[debug] [2025-10-22T18:06:13.726Z] Platform:      win32
+[debug] [2025-10-22T18:06:13.727Z] Node Version:  v24.7.0
+[debug] [2025-10-22T18:06:13.727Z] Time:          Wed Oct 22 2025 19:06:13 GMT+0100 (British Summer Time)
+[debug] [2025-10-22T18:06:13.727Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-22T18:06:13.729Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-10-22T18:06:13.789Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-22T18:06:13.790Z] > authorizing via signed-in user (dannycuba2002@gmail.com)
+[debug] [2025-10-22T18:06:13.790Z] [iam] checking project punish-calculator for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2025-10-22T18:06:13.790Z] > refreshing access token with scopes: []
+[debug] [2025-10-22T18:06:13.791Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-22T18:06:13.791Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-22T18:06:13.881Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2025-10-22T18:06:13.881Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-22T18:06:13.881Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/punish-calculator:testIamPermissions [none]
+[debug] [2025-10-22T18:06:13.881Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/punish-calculator:testIamPermissions x-goog-quota-user=projects/punish-calculator
+[debug] [2025-10-22T18:06:13.881Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/punish-calculator:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2025-10-22T18:06:14.030Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-10-22T18:06:14.030Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2025-10-22T18:06:14.478Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/punish-calculator:testIamPermissions 401
+[debug] [2025-10-22T18:06:14.478Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/punish-calculator:testIamPermissions {"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"ACCESS_TOKEN_TYPE_UNSUPPORTED","metadata":{"method":"google.cloudresourcemanager.v1.Projects.TestIamPermissions","service":"cloudresourcemanager.googleapis.com"}}]}}
+[debug] [2025-10-22T18:06:14.478Z] [iam] error while checking permissions, command may fail: FirebaseError: HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[debug] [2025-10-22T18:06:14.478Z] > refreshing access token with scopes: []
+[debug] [2025-10-22T18:06:14.479Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-22T18:06:14.479Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-22T18:06:14.535Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2025-10-22T18:06:14.535Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-22T18:06:14.535Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/punish-calculator/serviceAccounts/punish-calculator@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2025-10-22T18:06:14.535Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/punish-calculator/serviceAccounts/punish-calculator@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2025-10-22T18:06:14.689Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/punish-calculator/serviceAccounts/punish-calculator@appspot.gserviceaccount.com:testIamPermissions 401
+[debug] [2025-10-22T18:06:14.689Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/punish-calculator/serviceAccounts/punish-calculator@appspot.gserviceaccount.com:testIamPermissions {"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"ACCESS_TOKEN_TYPE_UNSUPPORTED","metadata":{"service":"iam.googleapis.com","method":"google.iam.admin.v1.IAM.TestIamPermissions"}}]}}
+[debug] [2025-10-22T18:06:14.689Z] [functions] service account IAM check errored, deploy may fail: HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project. {"name":"FirebaseError","children":[],"context":{"body":{"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"ACCESS_TOKEN_TYPE_UNSUPPORTED","metadata":{"service":"iam.googleapis.com","method":"google.iam.admin.v1.IAM.TestIamPermissions"}}]}},"response":{"statusCode":401}},"exit":1,"message":"HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":401}
+[info] 
+[info] === Deploying to 'punish-calculator'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "functions" run lint
+[info] +  functions: Finished running predeploy script. 
+[debug] [2025-10-22T18:06:18.707Z] > refreshing access token with scopes: []
+[debug] [2025-10-22T18:06:18.707Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-22T18:06:18.707Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-22T18:06:18.738Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2025-10-22T18:06:18.738Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-22T18:06:18.738Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/punish-calculator [none]
+[debug] [2025-10-22T18:06:18.830Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/punish-calculator 401
+[debug] [2025-10-22T18:06:18.830Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/punish-calculator {"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED"}}
+[debug] [2025-10-22T18:06:18.831Z] HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[debug] [2025-10-22T18:06:18.832Z] FirebaseError: HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+    at responseToError (C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\lib\responseToError.js:49:12)
+    at RetryOperation._fn (C:\Users\danie\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:305:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: Failed to get Firebase project punish-calculator. Please make sure the project exists and your account has permission to access it.

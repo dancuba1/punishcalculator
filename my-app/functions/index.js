@@ -36,12 +36,12 @@ exports.getBestMoveImage = functions.https.onRequest(async (req, res) => {
       prefix: `${characterName}/`});
     console.log("Files in bucket:", files.map((file) => file.name));
 
-
+    const effCharName = characterNameValidation(capitalChar, moveName);
     // Filter and find the best match
     let bestMatch = null;
     let bestDistance = Infinity;
 
-    const tName = `${capitalChar} ${moveName}`.toLowerCase().replace(" ", "");
+    const tName = `${effCharName} ${moveName}`.toLowerCase().replace(" ", "");
 
     files.forEach((file) => {
       if ((file.name).includes(".gif")) {
@@ -117,7 +117,8 @@ exports.findAllImages = functions.https.onRequest(async (req, res) => {
 
     // Loop through each move
     for (const moveName of moves) {
-      const targetName = `${capitalChar} ${moveName}`;
+      const effectiveCharName = characterNameValidation(capitalChar, moveName);
+      const targetName = `${effectiveCharName} ${moveName}`;
       let bestMatch = null;
       let bestDistance = Infinity;
 
@@ -148,6 +149,15 @@ exports.findAllImages = functions.https.onRequest(async (req, res) => {
   }
 });
 
+/* eslint-disable-next-line require-jsdoc */
+function characterNameValidation(charName, moveName) {
+  if (moveName.toLowerCase().includes("luma")) {
+    // Remove "Rosalina" from the start if it exists
+    charName = charName.replace(/^Rosalina\s*/i, "");
+    console.log(`(Luma) detected  new characterName: ${charName}`);
+  }
+  return charName;
+}
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
