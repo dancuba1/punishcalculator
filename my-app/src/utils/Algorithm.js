@@ -114,11 +114,13 @@ export function processStartUpValue(value) {
 
 
 //adds start up frames that are dependant on move type
-export function setStartUpCalc(move, initStartUp, jumpSquat) {
+export function setStartUpCalc(move, initStartUp, jumpSquat, isParry) {
   console.log(move);
   console.log("current js: " + jumpSquat.current);
 
-
+  if(isParry === true){
+    console.log("Parry is true, adding 2 frames to startup");
+  }
 
   try {
     let newStartup = initStartUp;
@@ -154,14 +156,14 @@ export function setStartUpCalc(move, initStartUp, jumpSquat) {
 
 
 //greater function for getting all start ups for a character
-export const getStartUpMap = async (pCharMoves, selectedPChar, jumpSquat) =>{
+export const getStartUpMap = async (pCharMoves, jumpSquat, isParry) =>{
   const startUpMap = new Map();
-  
+
   for(const move of pCharMoves){
     if((move.id).includes(""))
     //calc all start ups
     console.log(move.startup);
-    const startUp = await processStartUpValue(move.startup);
+    const startUp = await processStartUpValue(move.startup, isParry);
     if(startUp !== null) {
       console.log("start up not null " + startUp);
       startUpMap.set(move.id, setStartUpCalc(move, startUp, jumpSquat));
@@ -175,7 +177,7 @@ export const getStartUpMap = async (pCharMoves, selectedPChar, jumpSquat) =>{
 
 
 
-export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, selectedChar, selectedMoveId, jumpSquat) => {
+export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, selectedChar, selectedMoveId, jumpSquat, isParry) => {
   console.log("moveSelect " + moveSelect);
   console.log("pCharMoves " + pCharMoves);
   //make sure the a move is selected and punishing character also
@@ -201,7 +203,7 @@ export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, s
       }
       
        //for each move the punishing character 
-      const startUpMap = await getStartUpMap(pCharMoves, invertId(selectedPChar), jumpSquat);
+      const startUpMap = await getStartUpMap(pCharMoves, invertId(selectedPChar), jumpSquat, isParry);
      
       console.log("START UP MAP"  + startUpMap);
 

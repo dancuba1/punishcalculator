@@ -1,145 +1,206 @@
 import React, { useState, useEffect, useRef } from "react";
 
-function Dropdown({ selected, setSelected, options = [], placeholder }) {
+function Dropdown({ selected, setSelected, options = [], placeholder = "Select..." }) {
   const [isActive, setIsActive] = useState(false);
-  const [filter, setFilter] = useState(""); // To store the user input
-  const inputRef = useRef(null); // Reference to the input
+  const [filter, setFilter] = useState("");
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const inputRef = useRef(null);
+  const optionRefs = useRef([]); // array of refs to option DOM nodes
+  const containerRef = useRef(null);
   const blurTimeoutRef = useRef(null);
 
-  const getOptionName = (option) => (typeof option === 'object' ? option.name : option);
+  // utility to get name string
+  const getOptionName = (opt) => (typeof opt === "object" ? opt.name : opt);
 
-  // determine whether the provided `selected` actually exists in options
-  const isSelectedValid = (() => {
-    if (!selected) return false;
-    // normalize selected to string name when it's an object or string
-    const selectedName = typeof selected === "string" ? selected : getOptionName(selected);
-    return options.some((opt) => getOptionName(opt) === selectedName);
-  })();
+  // filtered list
+  const filteredOptions = options.filter((opt) =>
+    getOptionName(opt).toLowerCase().includes((filter || "").toLowerCase())
+  );
+
+  // ensure optionRefs length matches filteredOptions
+  useEffect(() => {
+    optionRefs.current = optionRefs.current.slice(0, filteredOptions.length);
+  }, [filteredOptions.length]);
+
+  // when focusedIndex changes, move DOM focus to that option (if visible)
+  useEffect(() => {
+    if (focusedIndex >= 0 && optionRefs.current[focusedIndex]) {
+      optionRefs.current[focusedIndex].focus();
+    } else if (focusedIndex === -1 && inputRef.current) {
+      // return focus to input (optional)
+      inputRef.current.focus();
+    }
+  }, [focusedIndex]);
+
+  // open dropdown and focus input when active toggled
+  useEffect(() => {
+    if (isActive && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isActive]);
+
+  // close when clicking outside
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (!containerRef.current?.contains(e.target)) {
+        setIsActive(false);
+        setFocusedIndex(-1);
+      }
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  const selectOption = (option) => {
+    const name = getOptionName(option);
+    setSelected(name);
+    setFilter(name);
+    setIsActive(false);
+    setFocusedIndex(-1);
+  };
 
   const trySelectExact = () => {
-    const trimmed = filter.trim().toLowerCase();
+    const trimmed = (filter || "").trim().toLowerCase();
     if (!trimmed) return false;
     const match = options.find((opt) => getOptionName(opt).toLowerCase() === trimmed);
     if (match) {
-      const name = getOptionName(match);
-      setSelected(name);
-      setFilter(name);
-      setIsActive(false);
+      selectOption(match);
       return true;
     }
     return false;
   };
 
-  // keep input in sync when external selected changes, but only if it's a real option
-  useEffect(() => {
-    if (isSelectedValid) {
-      const name = typeof selected === "string" ? selected : getOptionName(selected);
-      setFilter(name);
-    } else {
-      // if selected is not a valid option (e.g. "Select Character"), clear displayed input
-      setFilter("");
+  const onInputKeyDown = (e) => {
+    switch (e.key) {
+      case "Tab":
+        // if you want Tab to open and focus first option: prevent default
+        console.log("Tab pressed");
+        if (!isActive) {
+          e.preventDefault();
+          setIsActive(true);
+          setTimeout(() => setFocusedIndex(filteredOptions.length > 0 ? 0 : -1), 0);
+        } else {
+          // if already open, move focus to first option
+          e.preventDefault();
+          setFocusedIndex(filteredOptions.length > 0 ? 0 : -1);
+        }
+        break;
+
+      case "ArrowDown":
+        e.preventDefault();
+        if (!isActive) {
+          setIsActive(true);
+          setFocusedIndex(filteredOptions.length > 0 ? 0 : -1);
+        } else {
+          setFocusedIndex((prev) => (prev < filteredOptions.length - 1 ? prev + 1 : 0));
+        }
+        break;
+
+      case "ArrowUp":
+        e.preventDefault();
+        if (!isActive) {
+          setIsActive(true);
+          setFocusedIndex(filteredOptions.length > 0 ? filteredOptions.length - 1 : -1);
+        } else {
+          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : filteredOptions.length - 1));
+        }
+        break;
+
+      case "Enter":
+        console.log("Enter pressed");
+        e.preventDefault();
+        if (focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
+          selectOption(filteredOptions[focusedIndex]);
+        } else {
+          trySelectExact();
+        }
+        break;
+
+      case "Escape":
+        e.preventDefault();
+        setIsActive(false);
+        setFocusedIndex(-1);
+        break;
+
+      default:
+        // allow normal typing
+        break;
     }
-  }, [selected, isSelectedValid]); // re-run if selected or options change (via isSelectedValid)
+  };
 
-  // Filter options based on the user's input
-  const filteredOptions = options.filter((option) =>
-    typeof option === 'object'
-      ? option.name.toLowerCase().includes(filter.toLowerCase())
-      : option.toLowerCase().includes(filter.toLowerCase())
-  );
-
-  const [fontSize, setFontSize] = useState(20);
-
-  useEffect(() => {
-    const maxWidth = inputRef.current?.offsetWidth || 200;
-    const textLength = (filter || "").length;
-    // Simple logic: shrink font if text is long
-    let newFontSize = 20;
-    if (textLength > 20) newFontSize = Math.max(12, 20 - (textLength - 20) * 0.5);
-    setFontSize(newFontSize);
-  }, [filter]);
-
-  // Focus on the input when dropdown is activated
-  useEffect(() => {
-    if (isActive && inputRef.current) {
-      inputRef.current.focus();
+  // handle blur: small timeout so clicks on options succeed
+  const onInputBlur = () => {
+    blurTimeoutRef.current = setTimeout(() => {
+      if (!containerRef.current?.contains(document.activeElement)) {
+        setIsActive(false);
+        setFocusedIndex(-1);
+      }
+    }, 120);
+  };
+  const onInputFocus = () => {
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
     }
-  }, [isActive]);
-
-  // cleanup blur timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
-    };
-  }, []);
-
-  // display placeholder unless selected is a real option
-  const inputPlaceholder = isSelectedValid ? (typeof selected === "string" ? selected : getOptionName(selected)) : placeholder;
+    setIsActive(true);
+  };
 
   return (
-    <div className="dropdown">
-      <div
-        className="dropdown-button"
-        onClick={() => setIsActive(!isActive)}
-      >
+    <div className="dropdown" ref={containerRef}>
+      <div className="dropdown-button" onClick={() => setIsActive((s) => !s)}>
         <input
           ref={inputRef}
+          className="dropdown-input"
           type="text"
-          style={{ fontSize: `${fontSize}px` }}
           value={filter}
+          placeholder={placeholder}
           onChange={(e) => {
             setFilter(e.target.value);
-            // ensure dropdown opens while typing
-            if (!isActive) setIsActive(true);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              trySelectExact();
-            }
-          }}
-          onFocus={() => {
-            // open when input is focused
             setIsActive(true);
-            if (blurTimeoutRef.current) {
-              clearTimeout(blurTimeoutRef.current);
-              blurTimeoutRef.current = null;
-            }
+            setFocusedIndex(-1);
           }}
-          onBlur={() => {
-            // delay exact-match selection slightly so clicks on options aren't blocked
-            blurTimeoutRef.current = setTimeout(() => {
-              trySelectExact();
-              blurTimeoutRef.current = null;
-            }, 120);
-          }}
-          placeholder={inputPlaceholder}
-          onClick={(e) => e.stopPropagation()} // Prevent closing the dropdown when clicking input
-          className="dropdown-input"
+          onKeyDown={onInputKeyDown}
+          onFocus={onInputFocus}
+          onBlur={onInputBlur}
+          aria-expanded={isActive}
+          aria-haspopup="listbox"
+          role="combobox"
         />
-        <span className="fas fa-caret-down"></span>
+        <span className="caret" aria-hidden>▾</span>
       </div>
 
       {isActive && (
-        <div className="dropdown-content">
+        <div className="dropdown-content" role="listbox" aria-label="Options">
           {filteredOptions.length > 0 ? (
-            filteredOptions.map((option, index) => (
-              <div
-                key={index}
-                onMouseDown={(e) => {
-                  // use onMouseDown to set selection before blur fires
-                  const selectedOption = typeof option === 'object' ? option.name : option;
-                  setSelected(selectedOption);
-                  setFilter(selectedOption); // Update filter with selected value
-                  setIsActive(false);
-                }}
-                className="dropdown-item"
-              >
-                {typeof option === 'object' ? option.name : option}
-              </div>
-            ))
+            filteredOptions.map((opt, idx) => {
+              const name = getOptionName(opt);
+              return (
+                <div
+                  key={name + idx}
+                  role="option"
+                  aria-selected={focusedIndex === idx}
+                  tabIndex={-1} // not in normal tab flow
+                  ref={(el) => (optionRefs.current[idx] = el)}
+                  className={`dropdown-item ${focusedIndex === idx ? "focused" : ""}`}
+                  onMouseDown={(e) => {
+                    // onMouseDown to avoid blur-before-click
+                    e.preventDefault(); // prevent focus change stickiness
+                    selectOption(opt);
+                  }}
+                  onMouseEnter={() => setFocusedIndex(idx)} // hover updates highlight
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      selectOption(opt);
+                    }
+                  }}
+                >
+                  {name}
+                </div>
+              );
+            })
           ) : (
-            <div className="dropdown-item">No options found</div>
+            <div className="dropdown-item no-options">No options found</div>
           )}
         </div>
       )}
@@ -148,119 +209,3 @@ function Dropdown({ selected, setSelected, options = [], placeholder }) {
 }
 
 export default Dropdown;
-
-/*
-import React, { useState } from "react";
-
-function Dropdown({ selected, setSelected, options = [] }) {
-  const [isActive, setIsActive] = useState(false);
-  const [val, setVal] = useState('');
-  return (
-    <div className="dropdown">
-      <div
-        className="dropdown-button"
-        onClick={() => {
-          setIsActive(!isActive);
-          console.log("Clicked");
-        }}
-      >
-        {selected}
-        <span className="fas fa-caret-down"></span>
-      </div>
-      {isActive && (
-        <div className="dropdown-content">
-          {options.map((option, index) => (
-            <div
-              key={index}
-              onClick={() => {
-                setSelected(option);
-                console.log("Clicked", option);
-                setIsActive(false);
-              }}
-              className="dropdown-item"
-              
-            >
-              {typeof option === 'object' ? option.name : option} 
-
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-
-}
-  
-
-export default Dropdown;
-
-*/
-
-
-/*import React, { useState, useEffect, useRef } from "react";
-
-function Dropdown({ selected, setSelected, options = [] }) {
-  const [isActive, setIsActive] = useState(false);
-  const [filter, setFilter] = useState(""); // To store the user input
-  const inputRef = useRef(null); // Reference to the input
-
-  // Filter options based on the user's input
-  const filteredOptions = options.filter((option) =>
-    typeof option === 'object'
-      ? option.name.toLowerCase().includes(filter.toLowerCase())
-      : option.toLowerCase().includes(filter.toLowerCase())
-  );
-
-  // Focus on the input when dropdown is activated
-  useEffect(() => {
-    if (isActive && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isActive]);
-
-  return (
-    <div className="dropdown">
-      <div
-        className="dropdown-button"
-        onClick={() => setIsActive(!isActive)}
-      >
-        <input
-          ref={inputRef}
-          type="text"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder={selected || "Select an option"}
-          onClick={(e) => e.stopPropagation()} // Prevent closing the dropdown when clicking input
-          className="dropdown-input"
-        />
-        <span className="fas fa-caret-down"></span>
-      </div>
-
-      {isActive && (
-        <div className="dropdown-content">
-          {filteredOptions.length > 0 ? (
-            filteredOptions.map((option, index) => (
-              <div
-                key={index}
-                onClick={() => {
-                  const selectedOption = typeof option === 'object' ? option.name : option;
-                  setSelected(selectedOption);
-                  setFilter(selectedOption); // Update filter with selected value
-                  setIsActive(false);
-                }}
-                className="dropdown-item"
-              >
-                {typeof option === 'object' ? option.name : option}
-              </div>
-            ))
-          ) : (
-            <div className="dropdown-item">No options found</div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default Dropdown;
-*/

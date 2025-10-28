@@ -9,6 +9,7 @@ import { AppHeader } from './components/AppHeader.jsx';
 import { useSelectedMove } from './hooks/useSelectedMove.js';
 import { useCharacterMoves } from './hooks/useCharacterMoves.jsx';
 import { useFetchPCharMoves } from './hooks/useFetchPCharMoves.jsx';
+import { useRecalculateOnParryChange } from './hooks/useRecalculateOnParryChange.js';
 
 
 
@@ -92,6 +93,7 @@ function App() {
 
   // displayed move — only update this after calc completes
   const [displayedAMove, setDisplayedAMove] = useState(null);
+    const [isParry, setIsParry] = useState(true);
 
   const calc = async () => {
     if(validCalculationInputs([dropdownPCharID, dropdownACharID, dropdownAMoveID, moveSelect, pCharMoves]) === false){
@@ -120,10 +122,13 @@ function App() {
       setSSImages,
       setSingleImage,
       setCalcOutputVisible,
+      isParry,
     });
     // only update displayed move after calculation finished
     setDisplayedAMove(moveSelect);
   };
+
+  //useRecalculateOnParryChange(isParry, calc);
 
 
 
@@ -172,6 +177,8 @@ function App() {
             jumpSquat={jumpSquat}
             isPunishable={isPunishable}
             loading={loading}
+            isParry={isParry}
+            setIsParry={setIsParry}
           />
         </div>
         }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { MoveInfo } from "./MoveInfo";
 import OutputInfo from "./OutputInfo";
 import Slideshow from "./Slideshow";
+import ParryToggle from "./ParryToggle";
 
 // Simple skeleton loader component
 function Skeleton({ height = 40, width = "100%", style = {} }) {
@@ -21,7 +22,7 @@ function Skeleton({ height = 40, width = "100%", style = {} }) {
   );
 }
 
-export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, isPunishable, loading }) {
+export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, isPunishable, loading, isParry, setIsParry, parryChange }) {
   const [currentPMove, setCurrentPMove] = useState([]);
 
   useEffect(() => {
@@ -34,6 +35,10 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
   const handleIndexChange = (index) => {
     setCurrentPMove(pMoves[index]);
   };
+
+  
+
+
 
   const renderPMoves = () => {
     if (loading) {
@@ -98,6 +103,7 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
     <section className="calcRectangle">
       <div className="r">
         <div className="rec">
+          <ParryToggle isParry={isParry} setIsParry={setIsParry} />
           <div className="movesGifsInfo">
             <div className="charinfo aCharInfo">
             {loading ? <Skeleton height={180} /> : 

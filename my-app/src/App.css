@@ -551,3 +551,45 @@ h4{
   width: 24px;
   height: 24px;
 }
+
+.toggle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 6rem;
+}
+
+.toggle-button {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.toggle-button.parry {
+  background-color: #e63946;
+}
+
+.toggle-button.parry:hover {
+  background-color: #c82333;
+  box-shadow: 0 6px 16px rgba(230, 57, 70, 0.5);
+}
+
+.toggle-button.shield {
+  background-color: #1d4ed8;
+}
+
+.toggle-button.shield:hover {
+  background-color: #1e40af;
+  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.5);
+}
+
+.dropdown-item.focused {
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
