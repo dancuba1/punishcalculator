@@ -10,7 +10,7 @@ export function MoveInfo({ currentMove, isPMove }){
             return(
                 <div className="moveinfo">
                     <h3 className="startupinfo">Startup: {currentMove.startup}F</h3>
-                    <h4 className="activeinfo">Base Damage: {currentMove.baseDamage}</h4>
+                    <h5 className="activeinfo">Base Damage: {currentMove.baseDamage}</h5>
                 </div>
             
             );

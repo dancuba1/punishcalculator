@@ -43,14 +43,21 @@
   left: 30%; /* Center horizontally */
 }
 
-.App-header, .Input-character, .Character-list {
+.header-text, .Input-character, .Character-list {
   position: relative; /* Ensure content appears above the lines */
   z-index: 1; /* Higher z-index than pseudo-elements */
 }
 
 
-
 .App-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between; /* pushes children to edges */
+  align-items: center; /* vertically center */
+  width: 100%;
+}
+
+.header-text {
   padding-top: 2%;
   min-height: 25%;
   display: flex;
@@ -67,6 +74,68 @@
   -webkit-text-stroke: 0.5px;
   font-family: 'Koulan', sans-serif;
   letter-spacing: 10px;
+}
+
+.info-modal{
+    margin-right: 5%;
+}
+
+.info-logo {
+  width: 3vw;
+  height: 3vw;
+  border-radius: 50%;
+  background-color: #fff;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  margin: 0 auto; /* centres horizontally */
+    border: 3px solid black; /* ⬅️ adds a black outline around the circle */
+
+}
+
+
+
+
+
+.info-modal-content {
+  position: fixed;      
+  top: 50%;
+  left: 50%;
+  font-family: "jetbrainsmono", sans-serif;
+  transform: translate(-50%, 20px); /* just below center */
+  width: 70vw;      
+  height: 80vh;         
+  background-color: #fff;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  overflow-y: auto;
+  text-align: center;
+
+  opacity: 0;
+  pointer-events: none; /* prevent interaction when hidden */
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.info-modal-content.hovered {
+  transform: translate(-50%, -50%) translateY(0); /* float up */
+  opacity: 1;
+  pointer-events: auto;
+}
+@keyframes floatUp {
+  0% {
+    transform: translate(-50%, -50%) translateY(20px); /* start slightly lower */
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) translateY(0); /* end at normal position */
+    opacity: 1;
+  }
 }
 
 .Input-character{

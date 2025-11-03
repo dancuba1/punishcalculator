@@ -9,7 +9,6 @@ import { AppHeader } from './components/AppHeader.jsx';
 import { useSelectedMove } from './hooks/useSelectedMove.js';
 import { useCharacterMoves } from './hooks/useCharacterMoves.jsx';
 import { useFetchPCharMoves } from './hooks/useFetchPCharMoves.jsx';
-import { useRecalculateOnParryChange } from './hooks/useRecalculateOnParryChange.js';
 
 
 
@@ -142,7 +141,7 @@ function App() {
         <div className="dropdownContainer">
             <Dropdown
               className = "selectCharacter"
-              placeholder='Select Character'
+              placeholder='Select Attacking Character'
               options={allCharacterNames} 
               selected={dropdownACharID} 
               setSelected={setDropdownACharID}

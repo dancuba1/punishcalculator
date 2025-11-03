@@ -8,6 +8,7 @@ function Slideshow({ images = [], onIndexChange }) {
 
   const total = slides.length;
 
+
   // Notify parent on index change
   useEffect(() => {
     if (onIndexChange) onIndexChange(currentIndex);
@@ -20,14 +21,21 @@ function Slideshow({ images = [], onIndexChange }) {
       </div>
     );
   }
+  
 
   // Calculate previous and next indices
   const prevIndex = (currentIndex - 1 + total) % total;
   const nextIndex = (currentIndex + 1) % total;
 
-  // Handlers
-  const handlePrev = () => setCurrentIndex(prevIndex);
-  const handleNext = () => setCurrentIndex(nextIndex);
+    // Handlers
+    // Handlers using functional setState
+  const handlePrev = () =>
+    setCurrentIndex((prev) => (prev - 1 + total) % total);
+
+  const handleNext = () =>
+    setCurrentIndex((prev) => (prev + 1) % total);
+
+  
 
   // Render the slides
   return (
@@ -55,5 +63,7 @@ function Slideshow({ images = [], onIndexChange }) {
     </div>
   );
 }
+
+
 
 export default Slideshow;
