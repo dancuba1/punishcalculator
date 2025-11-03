@@ -157,11 +157,13 @@ h4{
 
 }
 
+
 .dropdown-content{
   z-index: 3;
 }
 .dropdown-item {
   z-index: 4;
+  padding: 3px;
 }
 
 .dropdown .dropdown-content .dropdown-item:hover{
@@ -387,7 +389,8 @@ h4{
 }
 
 .outputinfo{
-  padding: 10px;
+  padding: 5px;
+  padding-top: 10px;
   width: 70%;
   text-align: center;
   margin-top: 30px;
@@ -421,6 +424,7 @@ h4{
   min-width: 0;     /* allow flex children to shrink safely */
   box-sizing: border-box;
 }
+
 
 .slide{
   height: 50%;
@@ -524,18 +528,24 @@ h4{
 
 
 .arrow {
-  position:absolute;
+  position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
+  background: transparent; /* fully transparent background */
+  color: white; /* white arrow icon or text */
   border: none;
   padding: 10px;
   cursor: pointer;
-  display: flex; 
+  display: flex;
   z-index: 2;
   align-items: center;
   justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6)); /* shadow for the arrow itself */
+  transition: transform 0.2s ease;
+}
+
+.arrow:hover {
+  transform: translateY(-50%) scale(1.3); /* small hover effect (optional) */
 }
 
 .left-arrow {

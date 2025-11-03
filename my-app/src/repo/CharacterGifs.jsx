@@ -147,66 +147,106 @@ export const fetchGifs = async (char, moves, isId) => {
     return urls;
 }
 
+const FALLBACK_IMAGE = `${window.location.origin}/images/no-image.png`;
+// local fallback image
+
+// temporary list of moves you know have no images
+// (you can later import this from a JSON)
+const MISSING_MOVE_IMAGES = [
+  "Aura Sphere, Full Charge",
+  "Aura Sphere",
+];
 
 const getAllClosestImageUrls = async (characterName, moves) => {
-    console.log("getAllClosestImageURLs moveName : " + moves, "characterName: " + characterName);
-    const capitalChar = capitaliseFirstLetter(characterName);
-    try {
-        //UPDATE fetch URL
-      const response = await fetch('https://findallimages-xdlwx36zpq-uc.a.run.app', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ moves, capitalChar, characterName }),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-  
-      const result = await response.json();
-      const fileNames = result.fileNames;
-      console.log("Filenames: ", fileNames);
-      
-      let urls = [];
-      for(const fileName of fileNames){
-        const url = `https://firebasestorage.googleapis.com/v0/b/punish-calculator.appspot.com/o/${encodeURIComponent(`${fileName}`)}?alt=media`;
-        urls.push(url);
-      }
-      return urls;
-    } catch (error) {
-      console.error('Error retrieving image:', error);
+  console.log("getAllClosestImageURLs moveName : " + moves, "characterName: " + characterName);
+  const capitalChar = capitaliseFirstLetter(characterName);
+
+  // 1️⃣ Detect missing moves before sending to API
+  const validMoves = [];
+  const resultUrls = new Array(moves.length).fill(null); // preserve ordering
+
+  moves.forEach((move, index) => {
+    if (MISSING_MOVE_IMAGES.includes(move)) {
+      console.log(`Skipping missing move "${move}"`);
+      resultUrls[index] = FALLBACK_IMAGE; // pre-fill fallback
+    } else {
+      validMoves.push({ move, index });
     }
-}
+  });
+
+  // 2️⃣ If all moves missing, return all fallbacks immediately
+  if (validMoves.length === 0) {
+    console.warn("All moves have missing images — returning all fallbacks.");
+    return resultUrls;
+  }
+
+  // 3️⃣ Fetch only valid moves
+  try {
+    const response = await fetch("https://findallimages-xdlwx36zpq-uc.a.run.app", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        moves: validMoves.map((m) => m.move),
+        capitalChar,
+        characterName,
+      }),
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+    const result = await response.json();
+    const fileNames = result.fileNames || [];
+    console.log("FileNames returned:", fileNames);
+
+    // 4️⃣ Merge valid results back into correct positions
+    validMoves.forEach((item, i) => {
+      const fileName = fileNames[i];
+      resultUrls[item.index] = fileName
+        ? `https://firebasestorage.googleapis.com/v0/b/punish-calculator.appspot.com/o/${encodeURIComponent(
+            fileName
+          )}?alt=media`
+        : FALLBACK_IMAGE; // fallback if missing entry
+    });
+
+    return resultUrls;
+  } catch (error) {
+    console.error("Error retrieving images:", error);
+    return moves.map(() => FALLBACK_IMAGE);
+  }
+};
 
 const getClosestImageUrl = async (characterName, moveName) => {
-    console.log("getClosestImageURL moveName : " + moveName, "characterName: " + characterName);
-    const capitalChar = capitaliseFirstLetter(characterName);
+  console.log("getClosestImageURL moveName : " + moveName, "characterName: " + characterName);
+  const capitalChar = capitaliseFirstLetter(characterName);
 
-    try {
-      const response = await fetch('https://getbestmoveimage-xdlwx36zpq-uc.a.run.app', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ moveName, capitalChar, characterName }),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-  
-      const result = await response.json();
-      const fileName = result.fileName;
-      console.log("Filename: ", fileName);
-      
-      const url = `https://firebasestorage.googleapis.com/v0/b/punish-calculator.appspot.com/o/${encodeURIComponent(`${fileName}`)}?alt=media`;
-      return url;
-    } catch (error) {
-      console.error('Error retrieving image:', error);
+  // skip API if this move has no image
+  if (MISSING_MOVE_IMAGES.includes(moveName)) {
+    console.log(`Skipping API request for "${moveName}" — returning fallback.`);
+    return FALLBACK_IMAGE;
+  }
+
+  try {
+    const response = await fetch("https://getbestmoveimage-xdlwx36zpq-uc.a.run.app", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ moveName, capitalChar, characterName }),
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+    const result = await response.json();
+    const fileName = result.fileName;
+
+    if (!fileName) {
+      console.warn(`No match for ${moveName} — using fallback.`);
+      return FALLBACK_IMAGE;
     }
-  };
-  
-  
-  
+
+    return `https://firebasestorage.googleapis.com/v0/b/punish-calculator.appspot.com/o/${encodeURIComponent(
+      fileName
+    )}?alt=media`;
+  } catch (error) {
+    console.error("Error retrieving image:", error);
+    return FALLBACK_IMAGE;
+  }
+};

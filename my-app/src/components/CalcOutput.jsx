@@ -103,7 +103,6 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
     <section className="calcRectangle">
       <div className="r">
         <div className="rec">
-          <ParryToggle isParry={isParry} setIsParry={setIsParry} />
           <div className="movesGifsInfo">
             <div className="charinfo aCharInfo">
             {loading ? <Skeleton height={180} /> : 
@@ -132,5 +131,6 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
 
 export default CalcOutput;
 /*
+          <ParryToggle isParry={isParry} setIsParry={setIsParry} />
 
                     */

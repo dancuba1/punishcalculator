@@ -38,6 +38,7 @@ export const handlePunishCalc = async ({
       previousPChar === dropdownPCharID
     ) {
       console.log("No need to recalculate, same inputs as before.");
+      alert("No changes detected, calculation not needed.");
       return;
     }
 
@@ -114,13 +115,13 @@ export function processStartUpValue(value) {
 
 
 //adds start up frames that are dependant on move type
-export function setStartUpCalc(move, initStartUp, jumpSquat, isParry) {
+export function setStartUpCalc(move, initStartUp, jumpSquat) {
   console.log(move);
   console.log("current js: " + jumpSquat.current);
 
-  if(isParry === true){
-    console.log("Parry is true, adding 2 frames to startup");
-  }
+  //if(isParry === true){
+  //  console.log("Parry is true, adding 2 frames to startup");
+  //}
 
   try {
     let newStartup = initStartUp;
@@ -156,14 +157,14 @@ export function setStartUpCalc(move, initStartUp, jumpSquat, isParry) {
 
 
 //greater function for getting all start ups for a character
-export const getStartUpMap = async (pCharMoves, jumpSquat, isParry) =>{
+export const getStartUpMap = async (pCharMoves, jumpSquat) =>{
   const startUpMap = new Map();
 
   for(const move of pCharMoves){
     if((move.id).includes(""))
     //calc all start ups
     console.log(move.startup);
-    const startUp = await processStartUpValue(move.startup, isParry);
+    const startUp = await processStartUpValue(move.startup);
     if(startUp !== null) {
       console.log("start up not null " + startUp);
       startUpMap.set(move.id, setStartUpCalc(move, startUp, jumpSquat));
@@ -203,7 +204,7 @@ export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, s
       }
       
        //for each move the punishing character 
-      const startUpMap = await getStartUpMap(pCharMoves, invertId(selectedPChar), jumpSquat, isParry);
+      const startUpMap = await getStartUpMap(pCharMoves, jumpSquat);
      
       console.log("START UP MAP"  + startUpMap);
 
@@ -225,30 +226,54 @@ export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, s
   }
 }
 export const getFastestPCharMoves = async (pCharMoves, selectedPChar, jumpSquat) => {
-  console.log("in getFastestPCharMoves");
+  console.log("🚀 [getFastestPCharMoves] Start");
+  console.log("Inputs:", { pCharMoves, selectedPChar, jumpSquat });
 
-  // Get the map of all moves and their startup times
-  const startUpMap = await getStartUpMap(pCharMoves, invertId(selectedPChar), jumpSquat);
+  try {
+    // Get the map of all moves and their startup times
+    console.log("🧭 Fetching startup map...");
+    const startUpMap = await getStartUpMap(pCharMoves, jumpSquat);
+    console.log("✅ Startup map received. Entries:", startUpMap.size);
 
-  // Convert the Map to an array of entries ([moveId, moveObject])
-  const startUpArray = Array.from(startUpMap.entries());
+    // Convert the Map to an array of entries ([moveId, moveObject])
+    const startUpArray = Array.from(startUpMap.entries());
+    console.log("🔍 Converted to array:", startUpArray.slice(0, 5)); // show first few for preview
 
-  // Sort the array based on the 'startup' value (ascending)
-  const sortedStartUpArray = startUpArray.sort(([, moveA], [, moveB]) => moveA.startup - moveB.startup);
+    // Sort the array based on the 'startup' value (ascending)
+    const sortedStartUpArray = startUpArray.sort(([, moveA], [, moveB]) => {
+      const result = moveA.startup - moveB.startup;
+      if (isNaN(result)) {
+        console.warn("⚠️ NaN detected while sorting:", { moveA, moveB });
+      }
+      return result;
+    });
+    console.log("📊 Sorted by startup:", sortedStartUpArray.slice(0, 5));
 
-  // Get the top 3 fastest moves (still as [moveId, moveObject])
-  const top3MovesEntries = sortedStartUpArray.slice(0, 3);
+    // Get the top 3 fastest moves (still as [moveId, moveObject])
+    const top3MovesEntries = sortedStartUpArray.slice(0, 3);
+    console.log("🏃 Top 3 move entries:", top3MovesEntries);
 
-  // Extract just the move objects
-  const top3MoveObjects = top3MovesEntries.map(([, moveObj]) => moveObj);
+    // Extract just the move objects
+    const top3MoveObjects = top3MovesEntries.map(([, moveObj]) => moveObj);
+    console.log("🎯 Top 3 move objects:", top3MoveObjects);
 
-  // Optionally fetch gifs for these moves using their IDs
-  const top3MoveIds = top3MovesEntries.map(([moveId]) => moveId);
-  const urls = await fetchGifs(invertId(selectedPChar), top3MoveIds, true);
+    // Optionally fetch gifs for these moves using their IDs
+    const top3MoveIds = top3MovesEntries.map(([moveId]) => moveId);
+    console.log("🆔 Top 3 move IDs:", top3MoveIds);
 
-  console.log(top3MoveObjects);
-  return [top3MoveObjects, urls];
+    console.log("🌐 Fetching GIF URLs...");
+    const urls = await fetchGifs(invertId(selectedPChar), top3MoveIds, true);
+    console.log("✅ GIF URLs fetched:", urls);
+
+    console.log("🏁 [getFastestPCharMoves] Completed successfully");
+    return [top3MoveObjects, urls];
+
+  } catch (err) {
+    console.error("💥 [getFastestPCharMoves] Error:", err);
+    throw err;
+  }
 };
+
 
 
 async function handlePCharFetchGifs(moveSelect, startUpMap, selectedPChar) {

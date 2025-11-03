@@ -93,7 +93,7 @@ function App() {
 
   // displayed move — only update this after calc completes
   const [displayedAMove, setDisplayedAMove] = useState(null);
-    const [isParry, setIsParry] = useState(true);
+  const [isParry, setIsParry] = useState(true);
 
   const calc = async () => {
     if(validCalculationInputs([dropdownPCharID, dropdownACharID, dropdownAMoveID, moveSelect, pCharMoves]) === false){

@@ -51,13 +51,18 @@ function Dropdown({ selected, setSelected, options = [], placeholder = "Select..
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  const selectOption = (option) => {
-    const name = getOptionName(option);
-    setSelected(name);
-    setFilter(name);
-    setIsActive(false);
-    setFocusedIndex(-1);
-  };
+    const selectOption = (option) => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+        blurTimeoutRef.current = null;
+      }
+      const name = getOptionName(option);
+      setSelected(name);
+      setFilter(name);
+      setIsActive(false);   // hide dropdown immediately
+      setFocusedIndex(-1);
+    };
+
 
   const trySelectExact = () => {
     const trimmed = (filter || "").trim().toLowerCase();
@@ -73,18 +78,16 @@ function Dropdown({ selected, setSelected, options = [], placeholder = "Select..
   const onInputKeyDown = (e) => {
     switch (e.key) {
       case "Tab":
-        // if you want Tab to open and focus first option: prevent default
-        console.log("Tab pressed");
-        if (!isActive) {
-          e.preventDefault();
-          setIsActive(true);
-          setTimeout(() => setFocusedIndex(filteredOptions.length > 0 ? 0 : -1), 0);
-        } else {
-          // if already open, move focus to first option
-          e.preventDefault();
-          setFocusedIndex(filteredOptions.length > 0 ? 0 : -1);
-        }
-        break;
+  if (isActive) {
+    e.preventDefault(); // prevent default tab behaviour only when dropdown is open
+    // Move focus to next option, wrap around if needed
+    setFocusedIndex((prev) => {
+      if (filteredOptions.length === 0) return -1;
+      return (prev + 1) % filteredOptions.length;
+    });
+  }
+  // If dropdown is not active, let Tab behave normally (move to next input)
+  break;
 
       case "ArrowDown":
         e.preventDefault();
@@ -192,6 +195,12 @@ function Dropdown({ selected, setSelected, options = [], placeholder = "Select..
                     if (e.key === "Enter") {
                       e.preventDefault();
                       selectOption(opt);
+                    }if(e.key == "ArrowDown"){
+                      e.preventDefault();
+                      setFocusedIndex((prev) => (prev < filteredOptions.length - 1 ? prev + 1 : 0));
+                    }else if(e.key == "ArrowUp"){
+                      e.preventDefault();
+                      setFocusedIndex((prev) => (prev > 0 ? prev - 1 : filteredOptions.length - 1));
                     }
                   }}
                 >

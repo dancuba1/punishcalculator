@@ -5,6 +5,8 @@ export function MoveInfo({ currentMove, isPMove }){
         try{
        
             console.log("Startup: " + currentMove.startup);
+            console.log("Startup: " + currentMove.id);
+
             return(
                 <div className="moveinfo">
                     <h3 className="startupinfo">Startup: {currentMove.startup}F</h3>
