@@ -1,0 +1,91 @@
+import os
+import time
+import requests
+from urllib.parse import urljoin
+from bs4 import BeautifulSoup
+
+def download_head_icons_ssbu(dest_folder="head_icons_ssbu", delay=1.0):
+    base_url = "https://www.ssbwiki.com"
+    category_url = "https://www.ssbwiki.com/Category:Head_icons_(SSBU)"
+    os.makedirs(dest_folder, exist_ok=True)
+
+    session = requests.Session()
+    resp = session.get(category_url)
+    resp.raise_for_status()
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    # The gallery class you specified
+    gallery = soup.find("ul", class_="gallery mw-gallery-traditional")
+    if not gallery:
+        print("Gallery container not found on the page")
+        return
+
+    image_links = []
+    for img_tag in gallery.find_all("img"):
+        src = img_tag.get("src")
+        if not src:
+            continue
+        # Convert to full URL if relative
+        full_url = urljoin(base_url, src)
+        image_links.append(full_url)
+
+    print(f"Found {len(image_links)} images. Beginning download…")
+
+    for idx, img_url in enumerate(image_links, start=1):
+        try:
+            print(f"({idx}/{len(image_links)}) Downloading: {img_url}")
+            img_resp = session.get(img_url, stream=True)
+            img_resp.raise_for_status()
+            # derive filename from URL
+            filename = os.path.basename(img_url.split("?")[0])
+            filepath = os.path.join(dest_folder, filename)
+            with open(filepath, "wb") as f:
+                for chunk in img_resp.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            time.sleep(delay)  # polite delay between requests
+        except Exception as e:
+            print(f"Failed to download {img_url}: {e}")
+
+    print("Download complete.")
+
+import os
+import re
+
+def rename_ssbu_images(folder_path):
+    """
+    Renames all image files in the given folder:
+    - Removes 'SSBU' from filenames
+    - Converts filenames to lowercase
+    - Adds underscore before uppercase letters (except the first letter)
+    """
+    for filename in os.listdir(folder_path):
+        # Only process files
+        full_path = os.path.join(folder_path, filename)
+        if not os.path.isfile(full_path):
+            continue
+
+        name, ext = os.path.splitext(filename)
+
+        # Remove "SSBU"
+        name = name.replace("SSBU", "")
+
+        # Insert underscore before uppercase letters (except the first character)
+        name = re.sub(r'(?<!^)([A-Z])', r'_\1', name)
+
+        # Convert to lowercase
+        name = name.lower()
+
+        new_filename = f"{name}{ext}"
+        new_full_path = os.path.join(folder_path, new_filename)
+
+        print(f"Renaming: {filename} -> {new_filename}")
+        os.rename(full_path, new_full_path)
+
+    print("Renaming completed!")
+
+
+
+if __name__ == "__main__":
+    #download_head_icons_ssbu()
+    rename_ssbu_images("head_icons_ssbu")
+

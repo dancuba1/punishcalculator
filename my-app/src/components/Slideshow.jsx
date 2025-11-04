@@ -22,12 +22,10 @@ function Slideshow({ images = [], onIndexChange }) {
     );
   }
   
-
   // Calculate previous and next indices
   const prevIndex = (currentIndex - 1 + total) % total;
   const nextIndex = (currentIndex + 1) % total;
 
-    // Handlers
     // Handlers using functional setState
   const handlePrev = () =>
     setCurrentIndex((prev) => (prev - 1 + total) % total);

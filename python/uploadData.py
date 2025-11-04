@@ -3,7 +3,7 @@ from firebase_admin import credentials, firestore
 import json
 import logging
 # Path to your Firebase Admin SDK credentials JSON file
-cred = credentials.Certificate(r'C:\Users\danie\Desktop\Punish Calculator\misc\punish-calculator-firebase-adminsdk-efvsp-59835829c7.json')
+cred = credentials.Certificate(r'C:\Users\danie\Desktop\Punish Calculator\punish-calculator-firebase-adminsdk-efvsp-59835829c7.json')
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
@@ -45,6 +45,61 @@ def upload_to_firestore(data, parent_ref):
                 logging.error(f'Error processing item: {item}. Error: {e}')
 
 # Start the upload process
-for collection_name, collection_data in data.items():
-    collection_ref = db.collection(collection_name)
-    upload_to_firestore(collection_data, collection_ref)
+#for collection_name, collection_data in data.items():
+    #collection_ref = db.collection(collection_name)
+    #upload_to_firestore(collection_data, collection_ref)
+
+
+import firebase_admin
+from firebase_admin import credentials, firestore
+import json
+import logging
+
+# Initialize Firebase Admin SDK
+cred = credentials.Certificate(r'C:\Users\danie\Desktop\PunishCalculator\punish-calculator-firebase-adminsdk-efvsp-e7b7eb937f.json')
+firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+
+# Load JSON file
+with open(r'C:\Users\danie\Desktop\PunishCalculator\all_character_data.json') as f:
+    data = json.load(f)
+
+# Extract only Banjo Kazooie data
+banjo_data = data.get("banjo_kazooie")
+if not banjo_data:
+    logging.error("No data found for 'banjo_kazooie'. Exiting.")
+    exit(1)
+
+def upload_to_banjo_doc(data, doc_ref):
+    """
+    Recursively upload data under the document reference for Banjo.
+    Nested dictionaries are uploaded as subcollections.
+    """
+    for key, value in data.items():
+        try:
+            if isinstance(value, dict):
+                # Use a subcollection for nested dicts
+                subcollection_ref = doc_ref.collection(key)
+                for sub_key, sub_value in value.items():
+                    # Each sub_key becomes a document in the subcollection
+                    sub_doc_ref = subcollection_ref.document(sub_key)
+                    if isinstance(sub_value, dict):
+                        # Recursive for deeper nesting
+                        upload_to_banjo_doc(sub_value, sub_doc_ref)
+                    else:
+                        sub_doc_ref.set({sub_key: sub_value})
+            else:
+                # Primitive values go directly in the document
+                doc_ref.set({key: value}, merge=True)
+        except Exception as e:
+            logging.error(f"Error uploading key: {key}, value: {value}. Error: {e}")
+
+# Reference to Banjo Kazooie document under 'characters' collection
+banjo_doc_ref = db.collection("characters").collection("banjo_kazooie")
+
+# Upload data
+upload_to_banjo_doc(banjo_data, banjo_doc_ref)
+
+print("Banjo Kazooie data uploaded under 'characters' collection successfully.")
+
