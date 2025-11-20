@@ -41,6 +41,18 @@ export function OutputInfo({ aMove, pMove, jumpSquat }) {
         );
     }
 
+    if (aMove?.advantage === "--" || aMove?.advantage === "**") {
+        return (
+            <div className="outputinfo">
+                <h3 className="outputheader">OUTPUT</h3>
+                <p className="outputtext">
+                    Advantage for {aMove?.id} is not available. Showing the 3 fastest punish options instead.
+                </p>
+            </div>
+        );
+    }
+
+
     return (
         <div className="outputinfo">
             <h3 className="outputheader">OUTPUT</h3>

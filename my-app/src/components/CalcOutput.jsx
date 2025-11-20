@@ -50,7 +50,12 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
       );
     }
     if (!ssImages || !pMoves || !currentPMove) {
-    return null; // wait for data
+    return (
+        <div>
+          <Skeleton height={180} />
+          <Skeleton height={32} width="80%" />
+        </div>
+      );
   }
     switch (ssImages) {
       case "Shield Breaks":

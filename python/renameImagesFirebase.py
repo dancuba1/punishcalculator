@@ -1,5 +1,5 @@
 import firebase_admin
-from firebase_admin import credentials, storage
+from firebase_admin import credentials, storage, firestore
 import logging
 
 # Initialize Firebase Admin SDK
@@ -54,13 +54,69 @@ def rename_files_in_storage(character_name, rename_list):
                 "(checked .gif, .png, no extension)"
             )
 
-# Example usage:
-rename_files_in_storage(
-    'ken',
-    [
-        ('Ken Shoryuken Heavy', 'Ken Flame Shoryuken'),
-        ('Ken Shoryuken Light', 'Ken Shoryuken'),
-        ('Ken Shoryuken Medium Input', 'Ken True Shoryuken'),
-        ('Ken Shoryuken Heavy Input', 'Ken True Flame Shoryuken')
-    ]
-)
+db = firestore.client()
+def rename_move_in_firestore(character, old_move, new_move):
+    """
+    Renames a move document under:
+    characters/{character}/moves/{old_move}
+    
+    to:
+    characters/{character}/moves/{new_move}
+    """
+    print_moves_for_character(character)
+    old_doc_ref = db.collection("characters").document(character).collection("moves").document(old_move)
+    new_doc_ref = db.collection("characters").document(character).collection("moves").document(new_move)
+
+    # Fetch old doc
+    old_doc = old_doc_ref.get()
+
+    if not old_doc.exists:
+        logging.warning(f"Move '{old_move}' does not exist for character '{character}'.")
+        return
+
+    # Get the data
+    data = old_doc.to_dict()
+
+    # Create new document
+    new_doc_ref.set(data)
+
+    # Delete old document
+    old_doc_ref.delete()
+
+    logging.info(f"Renamed move '{old_move}' → '{new_move}' for character '{character}'.")
+
+def print_moves_for_character(character):
+    """
+    Prints all move document IDs under:
+    characters/{character}/moves/
+    surrounded by dashes.
+    """
+
+    moves_ref = db.collection("characters").document(character).collection("moves")
+    docs = list(moves_ref.stream())
+
+    if not docs:
+        print(f"No moves found for character '{character}'.")
+        return
+
+    print(f"Moves for '{character}':")
+    for doc in docs:
+        print(f"--- {doc.id} ---")
+
+def callRenameStorage():
+    rename_files_in_storage(
+        'ken',
+        [
+            ('Ryu Shoryuken Medium Input', 'Ken True Shoryuken'),
+        ]
+    )
+
+def callRenameFirestore():
+    rename_move_in_firestore('kazuya', 'F, F, A (66A)', 'Double Dash Attack (Left Splits Kick)')
+
+def main():
+    callRenameStorage()
+    #callRenameFirestore()
+
+if __name__ == "__main__":
+    main()

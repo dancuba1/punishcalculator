@@ -100,6 +100,7 @@ function App() {
       return;
     }
     setCalcOutputVisible(true);
+   
     await handlePunishCalc({
       //all data used in calc
       dropdownPCharID,
@@ -145,6 +146,7 @@ function App() {
               options={allCharacterNames} 
               selected={dropdownACharID} 
               setSelected={setDropdownACharID}
+              isCharacter={true}
             />
             <Dropdown
               className = "selectMove"
@@ -152,6 +154,7 @@ function App() {
               options={aMoveIds} 
               selected={dropdownAMoveID} 
               setSelected={setDropdownAMoveID}
+              isCharacter={false}
               />
             <Dropdown
               className = "selectPunishingCharacter"
@@ -159,6 +162,7 @@ function App() {
               options={allCharacterNames} 
               selected={dropdownPCharID} 
               setSelected={setDropdownPCharID}
+              isCharacter={true}
             />
         </div>
          <div className='button'>

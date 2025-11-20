@@ -1,6 +1,6 @@
   import React, { useState, useEffect, useRef } from "react";
 
-  function Dropdown({ selected, setSelected, options = [], placeholder = "Select..." }) {
+  function Dropdown({ selected, setSelected, options = [], placeholder = "Select..." , isCharacter}) {
     const [isActive, setIsActive] = useState(false);
     const [filter, setFilter] = useState("");
     const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -59,6 +59,9 @@
         const name = getOptionName(option);
         setSelected(name);
         setFilter(name);
+        if(isCharacter){
+          handleSelectCharacter(name);
+        }
         setIsActive(false);   // hide dropdown immediately
         setFocusedIndex(-1);
       };
@@ -148,9 +151,42 @@
       //setIsActive(true);
     };
 
+    const [selectedCharacter, setSelectedCharacter] = useState(null);
+    const [showCharacterIcon, setShowCharacterIcon] = useState(false);
+
+    function handleInputChange(e) {
+      setFilter(e.target.value);
+      setShowCharacterIcon(false);  // hide icon when typing anything new
+      setSelectedCharacter(null);
+    }
+
+    function handleSelectCharacter(character) {
+      setSelectedCharacter(character);
+      setShowCharacterIcon(true);   // show again when new character selected
+    }
+
+
     return (
       <div className="dropdown" ref={containerRef}>
         <div className="dropdown-button" onClick={() => setIsActive((s) => !s)}>
+          {isCharacter &&
+            typeof selected === "string" &&
+            selected.trim() !== "" &&
+            filter.trim() !== "" &&
+            selected !== "  Select Character" &&
+            selected !== "Select Punishing Character" &&
+            selectedCharacter &&
+            showCharacterIcon &&(
+              <div className="character-icon-selected">
+                <img
+                  src={`${window.location.origin}/images/head_icons_ssbu/${selected
+                    .toLowerCase()
+                    .replace(/\s+/g, "_")}_head.png`}
+                  alt={`${selected} Icon`}
+                  className="character-icon-image"
+                />
+              </div>
+          )}
           <input
             ref={inputRef}
             className="dropdown-input"
@@ -161,6 +197,7 @@
               setFilter(e.target.value);
               setIsActive(true);
               setFocusedIndex(-1);
+              handleInputChange(e);
             }}
             onKeyDown={onInputKeyDown}
             onFocus={onInputFocus}
@@ -184,9 +221,11 @@
 
         {isActive && (
           <div className="dropdown-content" role="listbox" aria-label="Options">
+
             {filteredOptions.length > 0 ? (
               filteredOptions.map((opt, idx) => {
                 const name = getOptionName(opt);
+                const helpfulName = name.toLowerCase().replace(/\s+/g, '_');
                 return (
                   <div
                     key={name + idx}
@@ -199,6 +238,7 @@
                       // onMouseDown to avoid blur-before-click
                       e.preventDefault(); // prevent focus change stickiness
                       selectOption(opt);
+                      handleSelectCharacter(name);
                     }}
                     onMouseEnter={() => setFocusedIndex(idx)} // hover updates highlight
                     onKeyDown={(e) => {
@@ -214,6 +254,13 @@
                       }
                     }}
                   >
+                    {isCharacter && <div className="character-icon-dropdown">
+                      <img
+                        src={`${window.location.origin}/images/head_icons_ssbu/${helpfulName}_head.png`}
+                        alt="Character Icon"
+                        className="character-icon-image"
+                      />
+                    </div>}
                     {name}
                   </div>
                 );

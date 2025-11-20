@@ -5,6 +5,10 @@
   height: 100dvi;
   min-height: 100vh;
 }
+.p{
+    font-size: calc(8px + 1.2vmin);
+
+}
 
 .App::before, .App::after {
   content: "";
@@ -48,17 +52,30 @@
   z-index: 1; /* Higher z-index than pseudo-elements */
 }
 
-
 .App-header {
+  padding-top: 2%;
+  min-height: 25%;
+  display: flex;
+  flex-direction: row;     /* row now that button is added */
+  justify-content: space-between;
+  align-items: center;     /* ← this is the KEY to stopping the upward shift */
+  margin-left: 5%;
+  margin-right: 5%;
+  width: 100%;
+
+  position: relative;
+}
+
+.App-header-row {
   display: flex;
   flex-direction: row;
   justify-content: space-between; /* pushes children to edges */
-  align-items: center; /* vertically center */
   width: 100%;
+  margin-top: 2%;             /* consistent top margin */
+
 }
 
 .header-text {
-  padding-top: 2%;
   min-height: 25%;
   display: flex;
   flex-direction: column;
@@ -66,26 +83,21 @@
   align-items: flex-start;
   align-self: flex-start;
   justify-content: center;
-  position: relative;
   margin-left: 5%;
   font-size: calc(5px + 2vmin);
   color: 1E1E1E;
   -webkit-text-fill-color: white;
-  -webkit-text-stroke: 0.5px;
+-webkit-text-stroke: 0.5px black;
   font-family: 'Koulan', sans-serif;
   letter-spacing: 10px;
 }
 
-.info-modal{
-    margin-right: 5%;
-}
 
 .info-logo {
-  width: 3vw;
-  height: 3vw;
+  width: 4vh;
+  height: 4vh;
   border-radius: 50%;
   background-color: #fff;
-  color: #000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,12 +105,32 @@
   cursor: pointer;
   user-select: none;
   margin: 0 auto; /* centres horizontally */
-    border: 3px solid black; /* ⬅️ adds a black outline around the circle */
 
 }
 
+.info-button{
+  width: 3vh;
+  height: 3vh;
+  border-radius: 50%;
+  margin-right: 5vh;
+  background-color: #ffffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  font-weight: bold;
+  -webkit-text-stroke: 1px black;
+  object-fit: cover;
+}
 
 
+.info-modal-button-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 
 .info-modal-content {
@@ -106,13 +138,12 @@
   top: 50%;
   left: 50%;
   font-family: "jetbrainsmono", sans-serif;
-  transform: translate(-50%, 20px); /* just below center */
+  transform: translate(-50%, 80px); /* further down so animation is visible */
   width: 70vw;      
   height: 80vh;         
   background-color: #fff;
   padding: 20px;
   margin-top: 20px;
-  border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   z-index: 1000;
   overflow-y: auto;
@@ -122,10 +153,25 @@
   pointer-events: none; /* prevent interaction when hidden */
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
-.info-modal-content.hovered {
-  transform: translate(-50%, -50%) translateY(0); /* float up */
-  opacity: 1;
+.info-modal-content p {
+  font-size: 2vh; /* scales with viewport width */
+}
+.info-modal-content.clicked {
+    opacity: 1;
   pointer-events: auto;
+  animation: floatUp 0.3s ease forwards;
+
+}
+
+
+
+.info-modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 0%;
+  z-index: 999; /* below modal but above other content */
 }
 @keyframes floatUp {
   0% {
@@ -137,6 +183,73 @@
     opacity: 1;
   }
 }
+
+
+.info-content {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* align to top when in row */
+  gap: 10px;             /* optional spacing between paragraphs */
+  margin-top: 20px;
+  padding: 10px;
+  flex-direction: column; /* default to column for narrow screens */
+}
+
+
+
+
+.info-content p {
+  background-color: white;
+  padding: 10px;
+  font-size: calc(8px + 1.2vmin);
+  flex: 1 1 50%;   /* flex-grow:1, flex-shrink:1, basis:50% */
+  min-width: 250px; /* prevents paragraphs from shrinking too small */
+  box-sizing: border-box;
+}
+
+.info-content h6 {
+  font-size: calc(10px + 1.5vmin);
+  margin-bottom: 10px;
+  margin: auto;
+}
+.example-calc {
+  max-width: 100%;     /* fits parent by default */
+  max-height: 60vh;
+  width: auto;
+  height: auto;
+  display: block;
+  margin: 20px auto;
+
+  
+  object-fit: contain;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+  border: #000000 2px solid;
+  cursor: zoom-in;     /* indicates it’s clickable */
+  transition: all 0.3s ease;
+}
+
+.example-calc.expanded {
+  width: 95vw;         /* almost full width of viewport */
+  max-height: 90vh;    /* stay within viewport height */
+  cursor: zoom-out;    /* indicates it can be closed */
+  margin: 20px auto;   /* centred */
+}
+.character-icon-selected {
+
+  margin-right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.character-icon-selected img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+
 
 .Input-character{
   padding-left: 10%;
@@ -212,7 +325,7 @@ h4{
   left: 6%;
   color: #333;
   position: absolute;
-  max-height: 200px; /* Adjust based on your preference */
+  max-height: 250px; /* Adjust based on your preference */
   overflow-y: auto; /* Enables vertical scrolling */
   font-weight: 500;
   font-family: 'Koulan', sans-serif;
@@ -233,6 +346,11 @@ h4{
 .dropdown-item {
   z-index: 4;
   padding: 3px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
 }
 
 .dropdown .dropdown-content .dropdown-item:hover{
@@ -326,7 +444,7 @@ h4{
   background: none;      /* Removes any background color */
   font: inherit;         /* Ensures the font is consistent */
   color: inherit;        /* Inherit color from the parent */
-  
+  font-size: 1rem;
 }
 
 

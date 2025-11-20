@@ -1,60 +1,93 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
-function InfoModal() {
-  const [isHovered, setIsHovered] = useState(false);
+function InfoModal({ isVisible, setIsVisible }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const modalRef = useRef(null);
+
+  const toggleExpand = () => setIsExpanded(prev => !prev);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!isVisible) return;
+
+      const modal = modalRef.current;
+
+      // If modal exists AND the click was outside it AND not on the info button:
+      if (
+        modal &&
+        !modal.contains(event.target) &&
+        !event.target.closest(".info-button")
+      ) {
+        setIsVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isVisible, setIsVisible]);
 
   return (
-    <div style={{ position: "relative", display: "inline-block", padding: "10px" }}>
-      {/* Circular button */}
+    <div>
       <div
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          width: "3vw",
-          height: "3vw",
-          borderRadius: "50%",
-          backgroundColor: "#FFFFFFFF",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#fff",
-          cursor: "pointer",
-          userSelect: "none",
-          fontWeight: "bold",
-          WebkitTextStroke: "1px black",
-        }}
-        
+        ref={modalRef}
+        className={`info-modal-content ${isVisible ? "clicked" : ""}`}
       >
-        i
-      </div>
-
-      {/* Modal always rendered, animation handled via class */}
-      <div className={`info-modal-content ${isHovered ? "hovered" : ""}`}>
-          <div className="info-logo">
-          i
+        <div className="info-logo">
+          <img
+            style={{ width: "100%", height: "100%" }}
+            src={`${window.location.origin}/images/info-logo.svg`}
+            alt="Info Logo"
+          />
         </div>
 
-        <p>
-          Hate Mashers?: Has anyone ever mashed a move over and over again on your shield, and you cannot seem to punish it?
-          <br />
-          It has happened to me.
-          <br />
-          <br />
-          SSBU Punish Calculator allows users to know whether the spammed move is truly punishable, which moves you can use to punish it, and if not, what are your quickest options regardless.
-        </p>
-        
-        <h6>How to Use:</h6>
+        <div className="info-content">
+          <h6>USE CASE</h6>
+          <p>
+            Hate Mashers?: Has anyone ever mashed a move over and over again on your shield, and you cannot seem to punish it?
+            <br />
+            It has happened to all Smash players.
+          </p>
+          <p>
+            SSBU Punish Calculator allows users to know whether the spammed move is truly punishable, which moves you can use to punish it, and if not, what are your quickest options regardless.
+            <br />
+            This tool accounts for varying out of punish startup times, including either jumpsquat or shield drop when necessary.
+          </p>
+
+
+        </div>
+        <div className="info-content tutorial">
+         <h6>HOW TO USE</h6>
         <p>
           1. Select the character attacking your shield (attacking character)
           <br />
           2. Pick the move that they are using
           <br />
           3. Select your own character
+          <br />
+          4. CALCULATE
         </p>
+        </div>
 
+        <h6>Example Calculation:</h6>
+
+        <img
+          className={`example-calc ${isExpanded ? "expanded" : ""}`}
+          src={`${window.location.origin}/images/example-calc.png`}
+          alt="Example Calculation"
+          onClick={toggleExpand}
+        />
+
+          <div className="info-content tutorial">
+          <h6>Output Interpretation</h6>
         <p>
           You will be given visuals of the attacking move, and all possible options for that are can be true punished, providing the hit-box (indicated by red or purple boxes) is spaced to be within the punishing attack’s range.
+          <br /> 
+          If no punish is found, you will be shown your quickest options regardless.
+          <br /> 
+          Note that this calculator assumes optimal shield pressure and reaction times.
+          <br />
         </p>
+        </div>
       </div>
     </div>
   );
