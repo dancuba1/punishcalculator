@@ -22,7 +22,7 @@ function Skeleton({ height = 40, width = "100%", style = {} }) {
   );
 }
 
-export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, isPunishable, loading, isParry, setIsParry, parryChange }) {
+export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, isPunishable, loading, pChar, isParry, setIsParry, parryChange }) {
   const [currentPMove, setCurrentPMove] = useState([]);
 
   useEffect(() => {

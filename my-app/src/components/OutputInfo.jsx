@@ -35,7 +35,7 @@ export function OutputInfo({ aMove, pMove, jumpSquat }) {
             <div className="outputinfo">
             <h3 className="outputheader">OUTPUT</h3>
             <p className="outputtext">
-                {aMove?.id} cannot be true punished, however, 3 of the punishing character's fastest moves have been provided, {noTruePunishMessage} 
+                {aMove?.id} cannot be true punished; however, three of the punishing character's fastest moves have been provided {noTruePunishMessage} 
             </p>
         </div>
         );
@@ -46,7 +46,7 @@ export function OutputInfo({ aMove, pMove, jumpSquat }) {
             <div className="outputinfo">
                 <h3 className="outputheader">OUTPUT</h3>
                 <p className="outputtext">
-                    Advantage for {aMove?.id} is not available. Showing the 3 fastest punish options instead.
+                    Frame Advantage for {aMove?.id} is not available. Showing the 3 fastest punish options instead.
                 </p>
             </div>
         );
@@ -72,7 +72,7 @@ const getDialogue = (aMove) => {
         perfectLanding = " perfectly landed";
         noTruePunishMessage = "in case of an imperfectly landed attack"
     } else {
-        moveDetail = "If hit near the first";
+        moveDetail = `If hit near the first`;
         noTruePunishMessage = "in case of your opponent mashing"
     }
     return[moveDetail, perfectLanding, noTruePunishMessage];
