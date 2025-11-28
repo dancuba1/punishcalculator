@@ -30,7 +30,7 @@ export function MoveInfo({ currentMove, isPMove }){
         return(
             <div className="moveinfo">
                 <h3 className="advantageinfo">On Shield: {advantage}</h3>
-                <h4 className="endlaginfo">End Lag: {endlag}F</h4>
+                <h5 className="endlaginfo">End Lag: {endlag}F</h5>
             </div>
         )
         }catch(err){

@@ -69,6 +69,17 @@ export const fetchGifs = async (char, moves, isId) => {
 }
     */
 
+/*
+export const fetchMultipleAttackingGifs = async (characterName , moveName) => {
+  let urls = []
+  if(characterName === "Min Min" && moveName === "Forward Smash"){
+    
+  }
+
+  return urls;
+}
+*/
+
 
 export const fetchGifs = async (char, moves, isId) => {
     console.log("in Fetch gifs");
@@ -155,6 +166,22 @@ const FALLBACK_IMAGE = `${window.location.origin}/images/no-image.png`;
 const MISSING_MOVE_IMAGES = [
   "Aura Sphere, Full Charge",
   "Aura Sphere",
+  "Dragon Fang Shot",
+  "Dragon Fang Shot chomp",
+  "Chomp",
+  "Dragon Lunge, Air",
+  "Bang",
+  "Sizz",
+  "Whack",
+  "Splattershot",
+  "Air, Grappling Attack",
+  "Grappling Hook",
+  "PK Thunder",
+  "Teleport",
+  "Shadow Ball",
+  "Shadow Ball, Fully Charged",
+  "Shot Put",
+  "Watergun",
 ];
 
 const getAllClosestImageUrls = async (characterName, moves) => {
@@ -165,12 +192,23 @@ const getAllClosestImageUrls = async (characterName, moves) => {
   const validMoves = [];
   const resultUrls = new Array(moves.length).fill(null); // preserve ordering
 
-  moves.forEach((move, index) => {
+  moves.forEach((move, index) => {    
     if (MISSING_MOVE_IMAGES.includes(move)) {
       console.log(`Skipping missing move "${move}"`);
       resultUrls[index] = FALLBACK_IMAGE; // pre-fill fallback
     } else {
-      validMoves.push({ move, index });
+      if(move === "Forward Tilt" && characterName === "mega_man"){
+        //megaman exception for forward tilt as same animation as jab
+        const jab = "jab";
+        validMoves.push({ jab , index });
+      
+      }else if(move === "Needle Storm, Full Charge" && characterName === "sheik"){
+        console.log("Found needle Storm");
+        const needleStorm = "Needle Storm";
+        validMoves.push({ needleStorm , index });
+      }else{
+        validMoves.push({ move, index });
+      }
     }
   });
 
@@ -226,6 +264,16 @@ const getClosestImageUrl = async (characterName, moveName) => {
   }
 
   try {
+    if(moveName === "Forward Tilt" && characterName === "mega_man"){
+      //megaman exception for forward tilt as same animation as jab
+      moveName = "jab";
+    }
+    if(moveName === "Needle Storm, Full Charge" && characterName === "sheik"){
+        console.log("Found needle Storm");
+        moveName = "Needle Storm";
+      ;
+    }
+
     const response = await fetch("https://getbestmoveimage-xdlwx36zpq-uc.a.run.app", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -15,7 +15,7 @@ export function AppHeader() {
             <h1>Punish</h1>
             <h1>Calculator</h1>
           </div>
-          <h4>v0.2.0</h4>
+          <h4>v0.2.1</h4>
         </div>
 
         <div className="info-modal-button-container">

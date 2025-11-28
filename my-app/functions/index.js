@@ -41,12 +41,11 @@ exports.getBestMoveImage = functions.https.onRequest(async (req, res) => {
     let bestMatch = null;
     let bestDistance = Infinity;
 
-    const tName = `${effCharName} ${moveName}`.toLowerCase().replace(" ", "");
+    const tName = `${effCharName} ${moveName}`.toLowerCase();
 
     files.forEach((file) => {
       if ((file.name).includes(".gif")) {
-        const fileName = file.name.split("/").pop().toLowerCase()
-            .replace(" ", "");
+        const fileName = file.name.split("/").pop().toLowerCase();
         const matchDistance = distance(fileName.replace(".gif", ""), tName);
 
         console.log(` ${fileName} vs ${tName}, Distance:${matchDistance}`);

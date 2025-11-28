@@ -4,39 +4,67 @@ from pathlib import Path
 import json
 import logging
 
-# Firebase Admin SDK path
+# Initialise Firebase only once
 cred_path = Path(r"C:\Users\danie\Desktop\PunishCalculator\punish-calculator-firebase-adminsdk-efvsp-e7b7eb937f.json")
 cred = credentials.Certificate(cred_path)
-firebase_admin.initialize_app(cred)
+
+# Prevent double-initialisation if reused by other scripts
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
-# Load JSON data
-with open(r"C:\Users\danie\Desktop\PunishCalculator\all_characters.json") as f:
-    data = json.load(f)
 
-# Extract Banjo Kazooie moves
-banjo_data = data.get("banjo_and_kazooie")
-if not banjo_data:
-    logging.error("No data found for 'banjo_and_kazooie'. Exiting.")
-    exit(1)
+def upload_character_to_firestore(character_name: str, json_path: str):
+    """
+    Uploads a single character's move data from the JSON file into Firestore.
+    
+    Structure created:
+    characters/{character_name}/moves/{move_name}
+    """
+    # Load JSON
+    with open(json_path, "r") as f:
+        character_data = json.load(f)
 
-# Reference to Banjo Kazooie document under 'characters'
-banjo_doc_ref = db.collection("characters").document("banjo_and_kazooie")
+    # Retrieve character data
 
-# Create a real document with a placeholder field
-banjo_doc_ref.set({"character_name": "Banjo & Kazooie"})  # <-- This ensures the doc exists
+    if not character_data:
+        logging.error(f"No data found for '{character_name}'. Exiting function.")
+        return
 
-# Now create a subcollection called 'moves'
-moves_collection_ref = banjo_doc_ref.collection("moves")
+    # Reference to parent document
+    char_doc_ref = db.collection("characters").document(character_name)
 
-# Upload each move as its own document in the 'moves' subcollection
-for move_name, move_data in banjo_data.items():
-    move_doc_ref = moves_collection_ref.document(move_name)
-    if isinstance(move_data, dict):
-        move_doc_ref.set(move_data)
-    else:
-        # If the move is a primitive, wrap it in a dict
-        move_doc_ref.set({"value": move_data})
+    # Create the parent document with a placeholder
+    char_doc_ref.set({"character_name": character_name})
 
-print("Banjo & Kazooie data uploaded: document + moves subcollection.")
+    # Subcollection for moves
+    moves_ref = char_doc_ref.collection("moves")
+
+    # Upload moves
+    for move_name, move_data in character_data.items():
+        doc_id = safe_doc_id(move_name)
+        move_doc_ref = moves_ref.document(doc_id)
+
+        if isinstance(move_data, dict):
+            move_doc_ref.set(move_data)
+        else:
+            move_doc_ref.set({"value": move_data})
+
+
+    print(f"{character_name} uploaded successfully with {len(character_data)} moves.")
+
+import re
+
+def safe_doc_id(name: str) -> str:
+    # Replace slashes with a dash
+    name = name.replace("/", "-")
+    # Remove characters Firestore/path APIs don't like
+    # Trim to reasonable length
+    return name[:80]
+
+
+upload_character_to_firestore(
+     character_name="kazuya",
+     json_path=r"C:\Users\danie\Desktop\PunishCalculator\punishcalculator\kazuya.json"
+)

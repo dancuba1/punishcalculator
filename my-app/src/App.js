@@ -173,8 +173,8 @@ function App() {
         { calcOutputVisibile &&
         <div className="calcOutput">
           <CalcOutput
-            ssImages = {ssImages}
-            singleImage = {singleImage}
+            pCharImages = {ssImages}
+            aCharImage = {singleImage}
             aMove = {displayedAMove}
             pMoves={punishingMoves}
             jumpSquat={jumpSquat}
@@ -185,9 +185,9 @@ function App() {
           />
         </div>
         }
-       
+      
       </div>
-     
+      
     </div>
   );
 }

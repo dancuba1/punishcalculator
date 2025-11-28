@@ -12,6 +12,28 @@ firebase_admin.initialize_app(cred, {
 bucket = storage.bucket()
 logging.basicConfig(level=logging.INFO)
 
+
+
+def auto_rename_jabs(character_name):
+
+
+    # Generate the renaming tuples for this character
+    char_name_formatted = " ".join(word.capitalize() for word in character_name.split("_"))
+    
+    # Standard jab renaming patterns
+    jab_patterns = [
+        ("Jab Rapid", "Rapid Jab"),
+        ("Jab Rapid End", "Rapid Jab Finisher"),
+        ("Jab Rapid Finisher", "Rapid Jab Finisher")
+
+    ]
+
+    # Generate the renaming tuples for this character
+    renames = [(f"{char_name_formatted} {old}", f"{char_name_formatted} {new}") for old, new in jab_patterns]
+
+    # Perform the renaming
+    rename_files_in_storage(character_name, renames)
+
 def rename_files_in_storage(character_name, rename_list):
     """
     Rename files in a character's Storage folder.
@@ -105,18 +127,28 @@ def print_moves_for_character(character):
 
 def callRenameStorage():
     rename_files_in_storage(
-        'ken',
+        'min_min',
         [
-            ('Ryu Shoryuken Medium Input', 'Ken True Shoryuken'),
+            ('Min Min Arms Hook Dragon Aerial', 'Min Min Arms Hook'),
+            
+
+
+         
+
         ]
     )
 
+
 def callRenameFirestore():
-    rename_move_in_firestore('kazuya', 'F, F, A (66A)', 'Double Dash Attack (Left Splits Kick)')
+    rename_move_in_firestore('kazuya', 'Demons Wrath (Side Taunt)', 'Crounching')
 
 def main():
     callRenameStorage()
     #callRenameFirestore()
+
+
+    #auto_rename_jabs('mewtwo')
+
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { getCharacterData } from "../repo/FirebaseRepository";
 import { invertId } from "../utils/stringManip";
+import exclusions from "../utils/invalidAttackingMoves.json";
+
 
 export function useCharacterMoves(dropdownACharID, setMoveIds) {
   useEffect(() => {
@@ -14,9 +16,7 @@ export function useCharacterMoves(dropdownACharID, setMoveIds) {
 
         // Update move IDs in state
         setMoveIds(
-          characterWithMoves[0].moves
-            .filter((move) => !move.id.toLowerCase().includes("grab"))
-            .map((move) => move.id)
+          filterMoves(characterWithMoves[0].moves)
         );
               } catch (error) {
         console.error("Error fetching character moves:", error);
@@ -27,3 +27,19 @@ export function useCharacterMoves(dropdownACharID, setMoveIds) {
   }, [dropdownACharID, setMoveIds]); // Dependency array
 }
 
+
+export function filterMoves(moves) {
+  if (!Array.isArray(moves)) return [];
+
+  // list your exclusions here
+  console.log("Exclusions : " + exclusions );
+  
+  const loweredExclusions = exclusions.map(e => e.toLowerCase().trim());
+
+  return moves
+    .filter(move => {
+      const id = move.id.toLowerCase();
+      return !loweredExclusions.some(ex => id.includes(ex));
+    })
+    .map(move => move.id);
+}

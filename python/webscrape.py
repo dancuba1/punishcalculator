@@ -63,15 +63,15 @@ def scanWebPage(pageToScrape):
         moveNames, startUp, totalFrames, landingLag, notes, baseDamage, activeFrames, endLag):
         clean_move_name = clean_text(moveName.text)
 
-        if "Grab" in clean_move_name:
-            moves_data[clean_text(moveName.text)] = {
-            "startup": clean_text(start.text),
-            "totalFrames": clean_text(total.text),
-            "landingLag": clean_text(landing.text),
-            "notes": clean_text(note.text),
-            "baseDamage": clean_text(base.text),
-            "activeFrames": clean_text(active.text),
-            "endLag": clean_text(end.text),
+        
+        moves_data[clean_move_name] = {
+        "startup": clean_text(start.text),
+        "totalFrames": clean_text(total.text),
+        "landingLag": clean_text(landing.text),
+        "notes": clean_text(note.text),
+        "baseDamage": clean_text(base.text),
+        "activeFrames": clean_text(active.text),
+        "endLag": clean_text(end.text),
          }
 
 
@@ -139,4 +139,61 @@ def webscrape():
     import pprint
     pp = pprint.PrettyPrinter(indent=2)
 
-gifScrape()
+
+def scanKazuyaPage(pageToScrape):
+    soup = BeautifulSoup(pageToScrape.text, "html.parser")
+
+    # Each move is inside a movecontainer div
+    rows = soup.find_all("div", class_="movecontainer")
+
+    def get_text(row, class_name):
+        el = row.find("div", class_=class_name)
+        if not el:
+            return "--"
+        return el.text.replace("\u2014", "").strip()
+
+    moves_data = {}
+
+    for row in rows:
+        move_name_el = row.find("div", class_="movename")
+        if not move_name_el:
+            continue
+
+        move_name = move_name_el.text.strip()
+
+        moves_data[move_name] = {
+            "startup": get_text(row, "startup"),
+            "totalFrames": get_text(row, "totalframes"),
+            "landingLag": get_text(row, "landinglag"),
+            "notes": get_text(row, "notes"),
+            "baseDamage": get_text(row, "basedamage"),
+            "activeFrames": get_text(row, "activeframes"),
+            "endLag": get_text(row, "endlag"),
+            "advantage": get_text(row, "advantage"),
+        }
+
+    return moves_data
+
+
+def kazuyascrape():
+    
+    url = f"https://ultimateframedata.com/kazuya.php"
+    page = requests.get(url)
+    print(f"Scraping data for kazuya...")
+    if page.status_code == 200:
+        character_data = scanKazuyaPage(page)
+
+    else:
+        print(f"Failed to retrieve data for {character}")
+
+    import json
+
+    with open('kazuya.json','w') as f:
+        json.dump(character_data, f, indent = 2)
+    # Example to print data for a specific character and move
+    import pprint
+    pp = pprint.PrettyPrinter(indent=2)
+
+
+kazuyascrape()
+#gifScrape()

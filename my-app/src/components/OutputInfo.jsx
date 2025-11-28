@@ -51,6 +51,17 @@ export function OutputInfo({ aMove, pMove, jumpSquat }) {
             </div>
         );
     }
+    if (aMove.advantage === "Shield Breaks") {
+        return (
+            <div className="outputinfo">
+                <h3 className="outputheader">OUTPUT</h3>
+                <p className="outputtext">
+                    This move breaks shields and cannot be punished. Three of the punishing character's fastest moves have been provided instead.
+                </p>
+            </div>
+        );
+    }
+
 
 
     return (

@@ -62,7 +62,7 @@ function InfoModal({ isVisible, setIsVisible }) {
           <br />
           2. Pick the move that they are using
           <br />
-          3. Select your own character
+          3. Select character who is shielding (punishing character)
           <br />
           4. CALCULATE
         </p>
@@ -96,7 +96,15 @@ function InfoModal({ isVisible, setIsVisible }) {
           <br />
           Example: Although Falco Up Air can mathematically punish Greninja's Dash Attack, due to Greninja being grounded and Falco attacking upwards while airborne, this cannot be true punished with this move. 
           <br />
-          The calculator isn’t perfect due to this issue, and I will work toward a solution. For now, please take each output with a grain of salt and refer to the hitboxes and character models when making your assumptions.        </p>
+          The calculator isn’t perfect due to this issue, and I will work toward a solution. For now, please take each output with a grain of salt and refer to the hitboxes and character models when making your assumptions.        
+        </p>
+
+          <h5>Final Note</h5>
+        <p>
+          When multiple on shield advantages are available for a move (e.g After Burner Kick, Down: -14/33), the maximum punish window is used in the calculation (33).
+          <br />
+          Therefore if you would like to factor in the more optimal landing of the attacking move, take into account the startup of the punishing move to see if it can punish.
+        </p>
         </div>
       </div>
     </div>

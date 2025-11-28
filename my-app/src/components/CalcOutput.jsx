@@ -22,7 +22,7 @@ function Skeleton({ height = 40, width = "100%", style = {} }) {
   );
 }
 
-export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, isPunishable, loading, pChar, isParry, setIsParry, parryChange }) {
+export function CalcOutput({ aCharImage, pCharImages, aMove, pMoves, jumpSquat, isPunishable, loading, pChar, isParry, setIsParry, parryChange }) {
   const [currentPMove, setCurrentPMove] = useState([]);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
         </div>
       );
     }
-    if (!ssImages || !pMoves || !currentPMove) {
+    if (!pCharImages || !pMoves || !currentPMove) {
     return (
         <div>
           <Skeleton height={180} />
@@ -57,7 +57,7 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
         </div>
       );
   }
-    switch (ssImages) {
+    switch (pCharImages) {
       case "Shield Breaks":
         return <h3>Shield Breaks so cannot punish out of shield</h3>;
       case "No advantage found":
@@ -69,7 +69,7 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
               <h2 className="moveName">{currentPMove?.id}</h2>
               <div className="sshow pCharSlideShow">
                 <Slideshow
-                  images={ssImages}
+                  images={pCharImages}
                   onIndexChange={handleIndexChange}
                 />
               </div>
@@ -117,7 +117,7 @@ export function CalcOutput({ singleImage, ssImages, aMove, pMoves, jumpSquat, is
               <div className="sshow aCharSlideShow">
                 
                 
-                  <Slideshow images={singleImage} />
+                  <Slideshow images={aCharImage} />
               </div>
 
                 </>}

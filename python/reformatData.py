@@ -58,17 +58,21 @@ def reformat_data():
 #
 #reformat_data()
 
-def reformat_banjo():
-    # Reference the existing moves subcollection under the banjo_and_kazooie document
-    collection = db.collection('characters').document('banjo_and_kazooie').collection('moves')
-    char_name = 'banjo_and_kazooie'  # Keep logging consistent
-    logging.info(f'Reformatting data for character collection: {char_name}')
+def reformat_character(character_name: str):
+    # Reference the existing moves subcollection under the given character
+    collection = (
+        db.collection("characters")
+        .document(character_name)
+        .collection("moves")
+    )
 
-    # Create or get the new character document
-    char_ref = db.collection('characters').document(char_name)
+    logging.info(f"Reformatting data for character collection: {character_name}")
 
-    # Create the moves sub-collection
-    moves_ref = char_ref.collection('moves')
+    # Reference to the character document
+    char_ref = db.collection("characters").document(character_name)
+
+    # Reference to the moves subcollection
+    moves_ref = char_ref.collection("moves")
 
     # Read all documents in the character's collection
     docs = collection.stream()
@@ -77,21 +81,17 @@ def reformat_banjo():
         doc_data = doc.to_dict()
         move_name = doc.id  # Document ID is the move name
 
-        # Check if the move name contains "Air" and set isAerial field
-        is_aerial = 'Air' in move_name
-        doc_data['isAerial'] = is_aerial
+        # Add computed fields
+        doc_data["isAerial"] = "Air" in move_name
+        doc_data["isUpSmash"] = "Up Smash" in move_name
+        doc_data["isUpB"] = "Up B" in move_name
 
-        is_up_smash = 'Up Smash' in move_name
-        doc_data['isUpSmash'] = is_up_smash
-
-        is_up_b = 'Up B' in move_name
-        doc_data['isUpB'] = is_up_b
-
-        # Upload move data to the new structure
+        # Upload back into the new structure
         moves_ref.document(move_name).set(doc_data, merge=True)
 
-    logging.info(f'Completed reformatting for character: {char_name}')
-    time.sleep(1)  # Add delay to avoid rate limits
+    logging.info(f"Completed reformatting for character: {character_name}")
+    time.sleep(1)  # Avoid rate limits
 
 
-reformat_banjo()
+
+reformat_character("kazuya")

@@ -5,6 +5,18 @@
   height: 100dvi;
   min-height: 100vh;
 }
+.special-thanks{
+ -webkit-text-fill-color: white;
+  -webkit-text-stroke: 0.5px black;
+  position: absolute;        /* lock to viewport */
+  bottom: 10px;           /* distance from bottom */
+  left: 10px;             /* distance from left */
+  margin: 0;              /* remove any auto margin */
+  display: flex;
+  align-items: flex-start;
+  z-index: 10;
+}
+
 .p{
     font-size: calc(8px + 1.2vmin);
 
@@ -530,11 +542,15 @@ h4{
 }
 .moveName {
   text-align: center;
-  margin-top: 5vh;
   font-weight: bold;
   text-transform: uppercase;
   font-size: calc(17px + 1.5vmin);
-         /* allows wrapping before clamp */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1;
 }
  
 
@@ -571,8 +587,11 @@ h4{
   font-family: 'jetbrainsmono', sans-serif;
   justify-content: flex-start;
   flex-wrap: nowrap;
-  gap: 20px;
+  gap: 10px;
   flex-direction: column;
+  min-height: 500px;
+  position: relative;
+  padding-top: 10px;
 }
 
 .outputinfo{
@@ -678,25 +697,52 @@ h4{
   position: relative;
 }
 
-.moveinfo{
+
+
+/* style individual text elements inside moveinfo */
+.moveinfo h3,
+.moveinfo h5 {
+  margin: 4px 0;               /* reduce default heading margins */
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;   /* fallback for older browsers */
+}
+
+.startupinfo,
+.activeinfo,
+.advantageinfo,
+.endlaginfo {
+  font-size: calc(10px + 1vw);  /* responsive font that won't overflow */
+  margin: 0;
+}
+.movesGifsInfo{
+  display: flex;
+  flex-wrap: wrap;              /* allow wrapping */
+  justify-content: space-around;
+  align-items: flex-start;      /* align all items to top when wrapped */
+  gap: 40px;
+  position: relative;
+  margin-top: 30px;
+  width: 100%;
+  padding: 10px;
+}
+
+.moveinfo {
   padding: 2%;
   text-align: center;
   background-color: white;
   box-shadow: 0 10px 25px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.06);
   border: 1px solid rgba(0,0,0,0.04);
-}
-.movesGifsInfo{
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 40px;
-  bottom: 20px;
-  position: relative;
-  margin-top: 30px;
-  height: fit-content; /* Full height of the viewport */
-  flex-wrap:wrap;
-  width: 100%;
-  padding: 10px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow: hidden;
+  white-space: normal;
+  min-width: 0;
+  
+  /* Expand downward: anchor to top, let content grow below */
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .sshow{

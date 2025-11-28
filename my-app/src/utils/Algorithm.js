@@ -1,6 +1,8 @@
 import { fetchGifs } from "../repo/CharacterGifs";
 import { invertId } from "./stringManip";
-import invalidMoves from "./invalidMoves.json";
+import invalidMoves from "./invalidPunishingMoves.json";
+
+
 
 
 
@@ -93,15 +95,22 @@ export const handlePunishCalc = async ({
 
 //retreives a useable start up value
 export function processStartUpValue(value) {
+  if (value === "Shield Breaks"){
+    return null
+  }
   if (typeof value === 'string') {
-      if (value.includes('/')) {
-          const parts = value.split('/').map(part => part.trim());
-          const numbers = parts.map(part => parseInt(part, 10)).filter(num => !isNaN(num));
-          return numbers.length > 0 ? Math.min(...numbers) : null;
-      } else {
-          const number = parseInt(value, 10);
-          return !isNaN(number) ? number : null;
-      }
+    // Extract all numbers (including negatives) from the string
+    // matches: -8, -22, 5, etc.
+    const numberMatches = value.match(/-?\d+/g);
+    
+    if (numberMatches && numberMatches.length > 0) {
+      // Convert all to integers
+      const numbers = numberMatches.map(num => parseInt(num, 10));
+      // Return the minimum (most negative = best advantage for punishing)
+      return Math.min(...numbers);
+    }
+    
+    return null;
   }else if(typeof value === 'number'){
     return value;
   
@@ -119,31 +128,26 @@ export function setStartUpCalc(move, initStartUp, jumpSquat) {
   console.log(move);
   console.log("current js: " + jumpSquat.current);
 
-  //if(isParry === true){
-  //  console.log("Parry is true, adding 2 frames to startup");
-  //}
-
   try {
     let newStartup = initStartUp;
 
-      if (invalidMoves.some(sub => move.id.includes(sub))) {
-        newStartup = 9999;
-      } else if (move.isUpB || move.isUpSmash) {
-        // no change
-      } else if (move.isAerial) {
-        newStartup += jumpSquat.current;
-      } else if (move.id.includes("Dash Grab")) {
-        newStartup += 11;
-      } else if (move.id.includes("Grab")) {
-        newStartup += 4;
-      } else if (move.id.includes("Aerial")) {
-        newStartup += jumpSquat.current;
-      } else {
-        newStartup += 11;
-      }
+    const moveIdLower = move.id.toLowerCase();
 
-
-      
+    if (invalidMoves.some(sub => moveIdLower.includes(sub))) {
+      newStartup = 9999;
+    } else if (move.isUpB || move.isUpSmash) {
+      // no change
+    } else if (move.isAerial) {
+      newStartup += jumpSquat.current;
+    } else if (move.id.includes("Dash Grab")) {
+      newStartup += 11;
+    } else if (move.id.includes("Grab")) {
+      newStartup += 4;
+    } else if (move.id.includes("Aerial")) {
+      newStartup += jumpSquat.current;
+    } else {
+      newStartup += 11;
+    }
 
     return {
       ...move,
@@ -154,6 +158,7 @@ export function setStartUpCalc(move, initStartUp, jumpSquat) {
     return;
   }
 }
+
 
 
 //greater function for getting all start ups for a character
@@ -197,8 +202,8 @@ export const punishCalculation = async (moveSelect, pCharMoves, selectedPChar, s
       
     
 
-      if((moveSelect.advantage === "--" || moveSelect.advantage === "**")){
-        const url = await handleACharFetchGifs(selectedChar, selectedMoveId);
+      if((moveSelect.advantage === "--" || moveSelect.advantage === "**" || moveSelect.advantage === "Shield Breaks")){
+        const url = await handleACharFetchGifs(selectedChar, selectedMoveId); 
         const [newPunishingMoves, urls] = await getFastestPCharMoves(pCharMoves, selectedPChar, jumpSquat);
         return [newPunishingMoves, urls, url];
       }
@@ -323,8 +328,18 @@ async function handlePCharFetchGifs(moveSelect, startUpMap, selectedPChar) {
 async function handleACharFetchGifs(selectedChar, selectedMoveId){
   var url = "";
   try{
-   url = await fetchGifs(invertId(selectedChar), selectedMoveId, true);
-   console.log("Found url ", url);
+    console.log("handleACharFetchGifs: selectedChar = " + selectedChar + " selectedMoveId = " + selectedMoveId);
+    /*
+    if (selectedChar === "Min Min" && selectedMoveId.includes("Forward")){
+      url = await fetchMultipleAttackingGifs(invertId(selectedChar), selectedMoveId);
+      return url;
+    }else{
+     
+    }
+      */
+       url = await fetchGifs(invertId(selectedChar), selectedMoveId, true);
+      console.log("Found url ", url);
+   
   }catch(err){
    console.log(err);
   }
@@ -332,6 +347,6 @@ async function handleACharFetchGifs(selectedChar, selectedMoveId){
   return url;
 }
 
-function notFollowingHits(key){
+export function notFollowingHits(key){
   return !(key.includes("Hit 2") || key.includes("Hit 3") || key.includes("Hit 4") || key.includes("Jab 2") || key.includes("Jab 3") || key.includes("Rapid Jab") || key.includes("Pivot Grab"));
 }
